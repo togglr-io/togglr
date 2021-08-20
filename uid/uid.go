@@ -15,6 +15,18 @@ func New() UID {
 	}
 }
 
+// FromString attempts to parse a UID from a string.
+func FromString(id string) (UID, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return UID{}, err
+	}
+
+	return UID{
+		NullUUID: uuid.NullUUID{UUID: uid, Valid: true},
+	}, nil
+}
+
 // String returns the string representation of a UID.
 func (u UID) String() string {
 	if u.Valid {
