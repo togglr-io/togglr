@@ -28,21 +28,22 @@ type idEnvelope struct {
 	ID uid.UID `json:"id"`
 }
 
-func buildRoutes(cfg Config) chi.Router {
+// BuildRoutes creates a Router and binds HTTP handlers to routes
+func BuildRoutes(cfg Config) chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RealIP)
 	// r.Use(Telemetry(cfg.Logger))
 	r.Use(middleware.Recoverer)
 
-	r.Post("/toggle", handleTogglePost(cfg.Logger, cfg.Services.ToggleService))
-	r.Get("/toggle", handleToggleList(cfg.Logger, cfg.Services.ToggleService))
-	r.Get("/toggle/{id}", handleToggleDetail(cfg.Logger, cfg.Services.ToggleService))
-	r.Delete("/toggle/{id}", handleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
+	r.Post("/toggle", HandleTogglePost(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle", HandleToggleGet(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle/{id}", HandleToggleGetID(cfg.Logger, cfg.Services.ToggleService))
+	r.Delete("/toggle/{id}", HandleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
 
 	return r
 }
 
 func Listen(cfg Config) error {
-	return http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), buildRoutes(cfg))
+	return http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), BuildRoutes(cfg))
 }

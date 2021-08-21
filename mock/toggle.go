@@ -28,14 +28,20 @@ func NewToggleService(err error) *ToggleService {
 }
 
 func (m *ToggleService) CreateToggle(ctx context.Context, toggle toggle.Toggle) (uid.UID, error) {
+	m.CreateToggleCalled++
 	if m.CreateToggleFn != nil {
 		return m.CreateToggleFn(ctx, toggle)
 	}
 
-	return uid.New(), m.Error
+	if toggle.ID.IsNull() {
+		return uid.New(), m.Error
+	}
+
+	return toggle.ID, m.Error
 }
 
 func (m *ToggleService) FetchToggle(ctx context.Context, id uid.UID) (toggle.Toggle, error) {
+	m.FetchToggleCalled++
 	if m.FetchToggleFn != nil {
 		return m.FetchToggleFn(ctx, id)
 	}
@@ -44,6 +50,7 @@ func (m *ToggleService) FetchToggle(ctx context.Context, id uid.UID) (toggle.Tog
 }
 
 func (m *ToggleService) ListToggles(ctx context.Context, req toggle.ListTogglesReq) ([]toggle.Toggle, error) {
+	m.ListTogglesCalled++
 	if m.ListTogglesFn != nil {
 		return m.ListTogglesFn(ctx, req)
 	}
@@ -52,6 +59,7 @@ func (m *ToggleService) ListToggles(ctx context.Context, req toggle.ListTogglesR
 }
 
 func (m *ToggleService) DeleteToggle(ctx context.Context, id uid.UID) error {
+	m.DeleteToggleCalled++
 	if m.DeleteToggleFn != nil {
 		return m.DeleteToggleFn(ctx, id)
 	}

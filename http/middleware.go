@@ -10,17 +10,16 @@ import (
 	"go.uber.org/zap"
 )
 
-type RequestID string
-
-const requestIDKey = "toggle/requestID"
-
-func WithRequestID(ctx context.Context, requestID string) context.Context {
-	key := RequestID(requestIDKey)
-	return context.WithValue(ctx, key, requestID)
+type ctxKey struct {
+	name string
 }
 
-func GetRequestID(ctx context.Context) RequestID {
-	val, _ := ctx.Value(requestIDKey).(RequestID)
+func WithRequestID(ctx context.Context, requestID string) context.Context {
+	return context.WithValue(ctx, ctxKey{name: "requestID"}, requestID)
+}
+
+func GetRequestID(ctx context.Context) string {
+	val, _ := ctx.Value(ctxKey{name: "requestID"}).(string)
 	return val
 }
 

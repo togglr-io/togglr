@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func handleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	log = log.With(zap.String("handler", "handleTogglePost"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func handleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 	})
 }
 
-func handleToggleList(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleGet(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	log = log.With(zap.String("handler", "handleToggleList"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing toggles")
@@ -77,7 +77,7 @@ func handleToggleList(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 	})
 }
 
-func handleToggleDetail(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleGetID(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log.Debug("fetching toggle", zap.String("id", id))
@@ -108,7 +108,7 @@ func handleToggleDetail(log *zap.Logger, ts toggle.ToggleService) http.HandlerFu
 	})
 }
 
-func handleToggleDelete(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleDelete(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log.Debug("deleting toggle", zap.String("id", id))
