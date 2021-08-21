@@ -6,7 +6,7 @@ services:
     image: toggle
     environment:
       TOGGLE_DB_HOST: postgres
-      TOGGLE_DB_USER: root
+      TOGGLE_DB_USER: toggle
       TOGGLE_DB_PASSWORD: toggle
     ports:
       - 9001:9001

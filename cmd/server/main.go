@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/eriktate/toggle/env"
 	"github.com/eriktate/toggle/http"
-	"github.com/eriktate/toggle/mock"
+	"github.com/eriktate/toggle/pg"
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -29,9 +30,16 @@ func run() error {
 	host := env.GetString("TOGGLE_HOST", "localhost")
 	port := env.GetUint("TOGGLE_PORT", 9001)
 
+	// initialize postgres
+	db, err := pg.NewClient(pg.ConfigFromEnv("TOGGLE"))
+	if err != nil {
+		return fmt.Errorf("failed to create database connection: %w", err)
+	}
+
 	// initialize services to be used
 	services := http.Services{
-		ToggleService: mock.NewToggleService(nil),
+		// ToggleService: mock.NewToggleService(nil),
+		ToggleService: db,
 	}
 
 	// build server

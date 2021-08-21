@@ -7,6 +7,7 @@ import (
 	"github.com/eriktate/toggle"
 	"github.com/eriktate/toggle/uid"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
 )
 
@@ -27,15 +28,19 @@ type idEnvelope struct {
 	ID uid.UID `json:"id"`
 }
 
-func buildRoutes(cfg Config) *chi.Mux {
-	mux := chi.NewMux()
+func buildRoutes(cfg Config) chi.Router {
+	r := chi.NewRouter()
 
-	mux.Post("/toggle", handleTogglePost(cfg.Logger, cfg.Services.ToggleService))
-	mux.Get("/toggle", handleToggleList(cfg.Logger, cfg.Services.ToggleService))
-	mux.Get("/toggle/{id}", handleToggleDetail(cfg.Logger, cfg.Services.ToggleService))
-	mux.Delete("/toggle/{id}", handleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
+	r.Use(middleware.RealIP)
+	// r.Use(Telemetry(cfg.Logger))
+	r.Use(middleware.Recoverer)
 
-	return mux
+	r.Post("/toggle", handleTogglePost(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle", handleToggleList(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle/{id}", handleToggleDetail(cfg.Logger, cfg.Services.ToggleService))
+	r.Delete("/toggle/{id}", handleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
+
+	return r
 }
 
 func Listen(cfg Config) error {

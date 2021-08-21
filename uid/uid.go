@@ -3,19 +3,24 @@ package uid
 import "github.com/google/uuid"
 
 // A UID represents a unique identifier. Other packages can leverage this type
-// without caring about the underlying implementation driving it.
+// without caring about the underlying implementation driving it
 type UID struct {
 	uuid.NullUUID
 }
 
-// New creates a new UID.
+// New creates a new UID
 func New() UID {
 	return UID{
 		NullUUID: uuid.NullUUID{UUID: uuid.New(), Valid: true},
 	}
 }
 
-// FromString attempts to parse a UID from a string.
+// IsNull returns whether or not a given UID is actually null
+func (u UID) IsNull() bool {
+	return u.Valid
+}
+
+// FromString attempts to parse a UID from a string
 func FromString(id string) (UID, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
@@ -27,7 +32,7 @@ func FromString(id string) (UID, error) {
 	}, nil
 }
 
-// String returns the string representation of a UID.
+// String returns the string representation of a UID
 func (u UID) String() string {
 	if u.Valid {
 		return u.UUID.String()

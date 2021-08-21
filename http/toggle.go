@@ -19,14 +19,14 @@ func handleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 		defer log.Sync()
 
 		var tog toggle.Toggle
-		data, err := ioutil.ReadAll(r.Body)
+		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Error("failed to read request", zap.Error(err))
 			serverError(w, "could not read request")
 			return
 		}
 
-		if err := json.Unmarshal(data, &tog); err != nil {
+		if err := json.Unmarshal(body, &tog); err != nil {
 			log.Error("failed to unmarshal request", zap.Error(err))
 			badRequest(w, "could not unmarshal toggle")
 			return
@@ -40,7 +40,7 @@ func handleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 		}
 
 		res := idEnvelope{id}
-		data, err = json.Marshal(res)
+		data, err := json.Marshal(res)
 		if err != nil {
 			log.Error("failed to marshal response", zap.Error(err))
 			serverError(w, "could not create toggle")
@@ -54,9 +54,26 @@ func handleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 func handleToggleList(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	log = log.With(zap.String("handler", "handleToggleList"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("listing toggles")
 		defer log.Sync()
 
-		noContent(w)
+		req := toggle.ListTogglesReq{}
+
+		toggles, err := ts.ListToggles(r.Context(), req)
+		if err != nil {
+			log.Error("failed to list toggles", zap.Error(err))
+			serverError(w, "could not list toggles")
+			return
+		}
+
+		data, err := json.Marshal(toggles)
+		if err != nil {
+			log.Error("failed to marshal toggles", zap.Error(err))
+			serverError(w, "could not list toggles")
+			return
+		}
+
+		ok(w, data)
 	})
 }
 
@@ -93,7 +110,23 @@ func handleToggleDetail(log *zap.Logger, ts toggle.ToggleService) http.HandlerFu
 
 func handleToggleDelete(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNoContent)
-		w.Write(nil)
+		id := chi.URLParam(r, "id")
+		log.Debug("deleting toggle", zap.String("id", id))
+		defer log.Sync()
+
+		uid, err := uid.FromString(id)
+		if err != nil {
+			log.Error("failed to parse toggle ID", zap.Error(err))
+			badRequest(w, "toggle ID was badly formed")
+			return
+		}
+
+		if err := ts.DeleteToggle(r.Context(), uid); err != nil {
+			log.Error("failed to delete toggle", zap.Error(err))
+			serverError(w, "could not delete toggle")
+			return
+		}
+
+		noContent(w)
 	})
 }

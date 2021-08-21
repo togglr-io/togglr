@@ -10,34 +10,22 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/eriktate/toggle/env"
+	"github.com/eriktate/toggle/pg"
 )
 
 const maxTries = 5
 const waitTime = 3
 
-type config struct {
-	Host     string
-	User     string
-	Password string
-	Database string
-	Port     uint
-}
-
-func fromEnv(prefix string) config {
-	return config{
-		Host:     env.GetString(fmt.Sprintf("%s_DB_HOST", prefix), "localhost"),
-		User:     env.GetString(fmt.Sprintf("%s_DB_USER", prefix), "root"),
-		Password: env.GetString(fmt.Sprintf("%s_DB_PASSWORD", prefix), "toggle"),
-		Database: env.GetString(fmt.Sprintf("%s_DB_NAME", prefix), "toggle"),
-		Port:     env.GetUint(fmt.Sprintf("%s_DB_PORT", prefix), 5432),
-	}
-}
-
 func connect(tries int) (*sql.DB, error) {
-	cfg := fromEnv("TOGGLE")
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Database)
-	db, err := sql.Open("postgres", dsn)
+	cfg := pg.ConfigFromEnv("TOGGLE")
+
+	// default configs use the app user
+	if cfg.User == "toggle" {
+		cfg.User = "root"
+		cfg.Password = "toggle"
+	}
+
+	db, err := sql.Open("postgres", cfg.DSN())
 	if err != nil {
 		log.Println("Retrying db connection...")
 		if tries < maxTries {
@@ -52,6 +40,7 @@ func connect(tries int) (*sql.DB, error) {
 func runMigration(db *sql.DB, query string, tries int) error {
 	if _, err := db.Exec(query); err != nil {
 		if tries < maxTries {
+			log.Println("Retrying migration...")
 			time.Sleep(waitTime * time.Second)
 			return runMigration(db, query, tries+1)
 		}

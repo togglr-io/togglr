@@ -28,16 +28,18 @@ type Toggle struct {
 	Key         string       `json:"key" db:"key"`
 	Description string       `json:"description" db:"description"`
 	Rules       []rules.Rule `json:"rules" db:"-"`
-	CreatedAt   time.Time    `json:"createdAt" db:"created_at"`
-	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at"`
+	CreatedAt   time.Time    `json:"createdAt" db:"created_at" goqu:"skipinsert"`
+	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`
 }
 
 // ListTogglesReq defines the search parameters that will be used when generating a list of toggles.
-type ListTogglesReq struct{}
+type ListTogglesReq struct {
+}
 
 // A ToggleService performs basic CRUD operations on toggles.
 type ToggleService interface {
 	CreateToggle(ctx context.Context, toggle Toggle) (uid.UID, error)
 	FetchToggle(ctx context.Context, id uid.UID) (Toggle, error)
 	ListToggles(ctx context.Context, req ListTogglesReq) ([]Toggle, error)
+	DeleteToggle(ctx context.Context, id uid.UID) error
 }

@@ -17,6 +17,9 @@ type ToggleService struct {
 	ListTogglesFn     func(ctx context.Context, req toggle.ListTogglesReq) ([]toggle.Toggle, error)
 	ListTogglesCalled int
 
+	DeleteToggleFn     func(ctx context.Context, id uid.UID) error
+	DeleteToggleCalled int
+
 	Error error
 }
 
@@ -46,4 +49,12 @@ func (m *ToggleService) ListToggles(ctx context.Context, req toggle.ListTogglesR
 	}
 
 	return make([]toggle.Toggle, 0), m.Error
+}
+
+func (m *ToggleService) DeleteToggle(ctx context.Context, id uid.UID) error {
+	if m.DeleteToggleFn != nil {
+		return m.DeleteToggleFn(ctx, id)
+	}
+
+	return m.Error
 }
