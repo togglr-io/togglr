@@ -2,31 +2,14 @@ package main
 
 import (
 	"log"
-	"os"
-	"strconv"
 
+	"github.com/eriktate/toggle/env"
 	"github.com/eriktate/toggle/http"
 	"github.com/eriktate/toggle/mock"
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
-func getEnvString(key, def string) string {
-	if val := os.Getenv(key); val != "" {
-		return val
-	}
-
-	return def
-}
-
-func getEnvUint(key string, def uint) uint {
-	if val, err := strconv.ParseUint(os.Getenv(key), 10, 32); err == nil {
-		return uint(val)
-	}
-
-	return def
-}
 
 func buildLogger() *zap.Logger {
 	logCfg := zap.NewDevelopmentEncoderConfig()
@@ -43,8 +26,8 @@ func run() error {
 	defer log.Sync()
 
 	// load configs
-	host := getEnvString("TOGGLE_HOST", "localhost")
-	port := getEnvUint("TOGGLE_PORT", 9001)
+	host := env.GetString("TOGGLE_HOST", "localhost")
+	port := env.GetUint("TOGGLE_PORT", 9001)
 
 	// initialize services to be used
 	services := http.Services{

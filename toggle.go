@@ -13,14 +13,23 @@ import (
 type Metadata struct {
 }
 
+// An Account represents a grouping of Users and Toggles.
+type Account struct {
+	ID        uid.UID   `json:"id" db:"id"`
+	Name      string    `json:"name" db:"name"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+}
+
 // A Toggle represents a key and the set of rules that determine the value that should be returned for it.
 type Toggle struct {
-	ID          uid.UID      `json:"id"`
-	Key         string       `json:"key"`
-	Description string       `json:"description"`
-	Rules       []rules.Rule `json:"rules"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	UpdatedAt   time.Time    `json:"updatedAt"`
+	ID          uid.UID      `json:"id" db:"id"`
+	AccountID   uid.UID      `json:"accountId" db:"account_id"`
+	Key         string       `json:"key" db:"key"`
+	Description string       `json:"description" db:"description"`
+	Rules       []rules.Rule `json:"rules" db:"-"`
+	CreatedAt   time.Time    `json:"createdAt" db:"created_at"`
+	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at"`
 }
 
 // ListTogglesReq defines the search parameters that will be used when generating a list of toggles.
