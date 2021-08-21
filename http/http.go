@@ -28,7 +28,8 @@ type idEnvelope struct {
 	ID uid.UID `json:"id"`
 }
 
-// BuildRoutes creates a Router and binds HTTP handlers to routes
+// BuildRoutes creates a Router and binds HTTP handlers to the routes. Exported mostly for testing purposes, should
+// call Listen with a Config for real use-cases
 func BuildRoutes(cfg Config) chi.Router {
 	r := chi.NewRouter()
 

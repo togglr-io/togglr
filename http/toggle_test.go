@@ -77,70 +77,6 @@ func Test_HandleTogglePost(t *testing.T) {
 	}
 }
 
-func Test_HandleToggleGetID(t *testing.T) {
-	cases := []struct {
-		name           string
-		id             string
-		toggleService  *mock.ToggleService
-		expectedStatus int
-		expectedCalls  int
-	}{
-		{
-			name:           "successful test",
-			id:             "c149f08b-b0fa-4a5d-8a6c-03ac992aa454",
-			toggleService:  mock.NewToggleService(nil),
-			expectedStatus: 200,
-			expectedCalls:  1,
-		},
-		{
-			name:           "bad request",
-			id:             "123",
-			toggleService:  mock.NewToggleService(nil),
-			expectedStatus: 400,
-			expectedCalls:  0,
-		},
-		{
-			name:           "service failure",
-			id:             "c149f08b-b0fa-4a5d-8a6c-03ac992aa454",
-			toggleService:  mock.NewToggleService(errors.New("forced")),
-			expectedStatus: 500,
-			expectedCalls:  1,
-		},
-	}
-
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			cfg := http.Config{
-				Logger: zap.NewNop(),
-				Services: http.Services{
-					ToggleService: c.toggleService,
-				},
-			}
-
-			s := httptest.NewServer(http.BuildRoutes(cfg))
-			defer s.Close()
-			url := fmt.Sprintf("%s/toggle/%s", s.URL, c.id)
-			req, err := stdhttp.NewRequest("GET", url, nil)
-			if err != nil {
-				t.Fatalf("failed to create request: %s", err)
-			}
-
-			res, err := stdhttp.DefaultClient.Do(req)
-			if err != nil {
-				t.Fatalf("failed to send request: %s", err)
-			}
-
-			if res.StatusCode != c.expectedStatus {
-				t.Fatalf("expected status code of %d, but got %d", c.expectedStatus, res.StatusCode)
-			}
-
-			if c.toggleService.FetchToggleCalled != c.expectedCalls {
-				t.Fatalf("expected FetchToggle toggle to be called %d times, but it was called %d times", c.expectedCalls, c.toggleService.CreateToggleCalled)
-			}
-		})
-	}
-}
-
 func Test_HandleToggleGet(t *testing.T) {
 	cases := []struct {
 		name           string
@@ -193,6 +129,70 @@ func Test_HandleToggleGet(t *testing.T) {
 
 			if c.toggleService.ListTogglesCalled != c.expectedCalls {
 				t.Fatalf("expected FetchToggle toggle to be called %d times, but it was called %d times", c.expectedCalls, c.toggleService.CreateToggleCalled)
+			}
+		})
+	}
+}
+
+func Test_HandleToggleDelete(t *testing.T) {
+	cases := []struct {
+		name           string
+		id             string
+		toggleService  *mock.ToggleService
+		expectedStatus int
+		expectedCalls  int
+	}{
+		{
+			name:           "successful test",
+			id:             "c149f08b-b0fa-4a5d-8a6c-03ac992aa454",
+			toggleService:  mock.NewToggleService(nil),
+			expectedStatus: 204,
+			expectedCalls:  1,
+		},
+		{
+			name:           "bad request",
+			id:             "123",
+			toggleService:  mock.NewToggleService(nil),
+			expectedStatus: 400,
+			expectedCalls:  0,
+		},
+		{
+			name:           "service failure",
+			id:             "c149f08b-b0fa-4a5d-8a6c-03ac992aa454",
+			toggleService:  mock.NewToggleService(errors.New("forced")),
+			expectedStatus: 500,
+			expectedCalls:  1,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cfg := http.Config{
+				Logger: zap.NewNop(),
+				Services: http.Services{
+					ToggleService: c.toggleService,
+				},
+			}
+
+			s := httptest.NewServer(http.BuildRoutes(cfg))
+			defer s.Close()
+			url := fmt.Sprintf("%s/toggle/%s", s.URL, c.id)
+			req, err := stdhttp.NewRequest("DELETE", url, nil)
+			if err != nil {
+				t.Fatalf("failed to create request: %s", err)
+			}
+
+			res, err := stdhttp.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatalf("failed to send request: %s", err)
+			}
+
+			if res.StatusCode != c.expectedStatus {
+				t.Fatalf("expected status code of %d, but got %d", c.expectedStatus, res.StatusCode)
+			}
+
+			if c.toggleService.DeleteToggleCalled != c.expectedCalls {
+				t.Fatalf("expected DeleteToggle to be called %d times, but it was called %d times", c.expectedCalls, c.toggleService.CreateToggleCalled)
 			}
 		})
 	}
