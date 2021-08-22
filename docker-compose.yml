@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: ./
+    image: toggle
+    environment:
+      TOGGLE_DB_HOST: postgres
+      TOGGLE_DB_USER: toggle
+      TOGGLE_DB_PASSWORD: toggle
+    ports:
+      - 9001:9001
+    command: "./server"
+
+  postgres:
+    image: postgres:13.4
+    environment:
+      POSTGRES_DB: toggle
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: toggle
+    ports:
+      - 5432:5432
+
+  migrate:
+    depends_on:
+      - api
+      - postgres
+    image: toggle
+    environment:
+      TOGGLE_DB_HOST: postgres
+      TOGGLE_DB_USER: root
+      TOGGLE_DB_PASSWORD: toggle
+    volumes:
+      - "./migrations:/opt/app/migrations"
+    command: "./migrate up"
+
+
