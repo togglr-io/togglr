@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/eriktate/toggle/env"
+	"github.com/togglr-io/togglr/env"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )

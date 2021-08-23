@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/eriktate/toggle/env"
-	"github.com/eriktate/toggle/http"
-	"github.com/eriktate/toggle/pg"
+	"github.com/togglr-io/togglr/env"
+	"github.com/togglr-io/togglr/http"
+	"github.com/togglr-io/togglr/pg"
 	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/eriktate/toggle"
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr"
+	"github.com/togglr-io/togglr/uid"
 	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )

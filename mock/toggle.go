@@ -3,8 +3,8 @@ package mock
 import (
 	"context"
 
-	"github.com/eriktate/toggle"
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr"
+	"github.com/togglr-io/togglr/uid"
 )
 
 type ToggleService struct {

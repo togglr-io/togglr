@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/eriktate/toggle"
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr"
+	"github.com/togglr-io/togglr/uid"
 )
 
 // CreateToggle creates a new Toggle in postgres. If the toggle doen't already have an ID, one will be

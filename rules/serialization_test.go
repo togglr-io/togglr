@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/eriktate/toggle/rules"
+	"github.com/togglr-io/togglr/rules"
 )
 
 func Test_UnmarshalExpression(t *testing.T) {
