@@ -1,4 +1,4 @@
-module github.com/eriktate/toggle
+module github.com/togglr-io/togglr
 
 go 1.17
 

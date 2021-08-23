@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr/uid"
 )
 
 // Enums

@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/eriktate/toggle/http"
-	"github.com/eriktate/toggle/mock"
+	"github.com/togglr-io/togglr/http"
+	"github.com/togglr-io/togglr/mock"
 	"go.uber.org/zap"
 )
 

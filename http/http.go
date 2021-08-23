@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/eriktate/toggle"
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr"
+	"github.com/togglr-io/togglr/uid"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"

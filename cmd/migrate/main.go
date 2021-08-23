@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/eriktate/toggle/pg"
+	"github.com/togglr-io/togglr/pg"
 )
 
 const maxTries = 5

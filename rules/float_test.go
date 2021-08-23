@@ -3,7 +3,7 @@ package rules_test
 import (
 	"testing"
 
-	"github.com/eriktate/toggle/rules"
+	"github.com/togglr-io/togglr/rules"
 )
 
 func Test_FloatComparable(t *testing.T) {

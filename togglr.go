@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/eriktate/toggle/rules"
-	"github.com/eriktate/toggle/uid"
+	"github.com/togglr-io/togglr/rules"
+	"github.com/togglr-io/togglr/uid"
 )
 
 // Metadata is included with the initial request for Toggles when a new client initializes. It's used to
