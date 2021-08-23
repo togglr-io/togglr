@@ -3,6 +3,7 @@ package http
 import "net/http"
 
 func ok(w http.ResponseWriter, data []byte) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
