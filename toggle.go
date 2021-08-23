@@ -27,6 +27,7 @@ type Toggle struct {
 	AccountID   uid.UID      `json:"accountId" db:"account_id"`
 	Key         string       `json:"key" db:"key"`
 	Description string       `json:"description" db:"description"`
+	Active      bool         `json:"active" db:"active"`
 	Rules       []rules.Rule `json:"rules" db:"-"`
 	CreatedAt   time.Time    `json:"createdAt" db:"created_at" goqu:"skipinsert"`
 	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`

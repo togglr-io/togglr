@@ -8,6 +8,7 @@ import (
 	"github.com/eriktate/toggle/uid"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"go.uber.org/zap"
 )
 
@@ -36,6 +37,9 @@ func BuildRoutes(cfg Config) chi.Router {
 	r.Use(middleware.RealIP)
 	// r.Use(Telemetry(cfg.Logger))
 	r.Use(middleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000", "http://localhost:9001"},
+	}))
 
 	r.Post("/toggle", HandleTogglePost(cfg.Logger, cfg.Services.ToggleService))
 	r.Get("/toggle", HandleToggleGet(cfg.Logger, cfg.Services.ToggleService))
