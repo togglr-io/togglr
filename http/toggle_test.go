@@ -10,37 +10,59 @@ import (
 
 	"github.com/togglr-io/togglr/http"
 	"github.com/togglr-io/togglr/mock"
+	"github.com/togglr-io/togglr/uid"
 	"go.uber.org/zap"
 )
 
 func Test_HandleTogglePost(t *testing.T) {
+	id := uid.New().String()
 	cases := []struct {
-		name           string
-		payload        string
-		toggleService  *mock.ToggleService
-		expectedStatus int
-		expectedCalls  int
+		name                string
+		payload             string
+		toggleService       *mock.ToggleService
+		expectedStatus      int
+		expectedCreateCalls int
+		expectedUpdateCalls int
 	}{
 		{
-			name:           "successful test",
-			payload:        `{"key": "test-toggle"}`,
-			toggleService:  mock.NewToggleService(nil),
-			expectedStatus: 200,
-			expectedCalls:  1,
+			name:                "successful create",
+			payload:             `{"key": "test-toggle"}`,
+			toggleService:       mock.NewToggleService(nil),
+			expectedStatus:      200,
+			expectedCreateCalls: 1,
+			expectedUpdateCalls: 0,
 		},
 		{
-			name:           "bad request",
-			payload:        `{"key": invalid"test-toggle"}`,
-			toggleService:  mock.NewToggleService(nil),
-			expectedStatus: 400,
-			expectedCalls:  0,
+			name:                "bad request",
+			payload:             `{"key": invalid"test-toggle"}`,
+			toggleService:       mock.NewToggleService(nil),
+			expectedStatus:      400,
+			expectedCreateCalls: 0,
+			expectedUpdateCalls: 0,
 		},
 		{
-			name:           "failed create",
-			payload:        `{"key": "test-toggle"}`,
-			toggleService:  mock.NewToggleService(errors.New("forced")),
-			expectedStatus: 500,
-			expectedCalls:  1,
+			name:                "failed create",
+			payload:             `{"key": "test-toggle"}`,
+			toggleService:       mock.NewToggleService(errors.New("forced")),
+			expectedStatus:      500,
+			expectedCreateCalls: 1,
+			expectedUpdateCalls: 0,
+		},
+		{
+			name:                "successful update",
+			payload:             fmt.Sprintf(`{"id": "%s", "description": "New description"}`, id),
+			toggleService:       mock.NewToggleService(nil),
+			expectedStatus:      200,
+			expectedCreateCalls: 0,
+			expectedUpdateCalls: 1,
+		},
+		{
+			name:                "failed update",
+			payload:             fmt.Sprintf(`{"id": "%s", "description": "New description"}`, id),
+			toggleService:       mock.NewToggleService(errors.New("forced")),
+			expectedStatus:      500,
+			expectedCreateCalls: 0,
+			expectedUpdateCalls: 1,
 		},
 	}
 
@@ -70,8 +92,12 @@ func Test_HandleTogglePost(t *testing.T) {
 				t.Fatalf("expected status code of %d, but got %d", c.expectedStatus, res.StatusCode)
 			}
 
-			if c.toggleService.CreateToggleCalled != c.expectedCalls {
-				t.Fatalf("expected CreateToggle toggle to be called %d times, but it was called %d times", c.expectedCalls, c.toggleService.CreateToggleCalled)
+			if c.toggleService.CreateToggleCalled != c.expectedCreateCalls {
+				t.Fatalf("expected CreateToggle toggle to be called %d times, but it was called %d times", c.expectedCreateCalls, c.toggleService.CreateToggleCalled)
+			}
+
+			if c.toggleService.UpdateToggleCalled != c.expectedUpdateCalls {
+				t.Fatalf("expected UpdateToggle toggle to be called %d times, but it was called %d times", c.expectedUpdateCalls, c.toggleService.UpdateToggleCalled)
 			}
 		})
 	}

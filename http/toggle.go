@@ -5,21 +5,21 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/go-chi/chi"
 	"github.com/togglr-io/togglr"
 	"github.com/togglr-io/togglr/uid"
-	"github.com/go-chi/chi"
 	"go.uber.org/zap"
 )
 
 // HandleTogglePost handles POST requests to the /toggle endpoint
-func HandleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleTogglePost(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	log = log.With(zap.String("handler", "handleTogglePost"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("creating toggle")
 		defer log.Sync()
 
-		var tog toggle.Toggle
+		var toggle togglr.Toggle
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Error("failed to read request", zap.Error(err))
@@ -27,17 +27,29 @@ func HandleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 			return
 		}
 
-		if err := json.Unmarshal(body, &tog); err != nil {
+		if err := json.Unmarshal(body, &toggle); err != nil {
 			log.Error("failed to unmarshal request", zap.Error(err))
 			badRequest(w, "could not unmarshal toggle")
 			return
 		}
 
-		id, err := ts.CreateToggle(r.Context(), tog)
-		if err != nil {
-			log.Error("failed to create toggle", zap.Error(err))
-			serverError(w, "could not create toggle")
-			return
+		id := toggle.ID
+
+		// whether or not the Toggle has an ID determines if we're creating a new one or
+		// updating an existing one{}
+		if id.IsNull() {
+			id, err = ts.CreateToggle(r.Context(), toggle)
+			if err != nil {
+				log.Error("failed to create toggle", zap.Error(err))
+				serverError(w, "could not save toggle")
+				return
+			}
+		} else {
+			if err := ts.UpdateToggle(r.Context(), toggle); err != nil {
+				log.Error("failed to update toggle", zap.Error(err))
+				serverError(w, "could not save toggle")
+				return
+			}
 		}
 
 		res := idEnvelope{id}
@@ -53,13 +65,13 @@ func HandleTogglePost(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc
 }
 
 // HandleToggleGet handles GET requests to the /toggle endpoint
-func HandleToggleGet(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleGet(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	log = log.With(zap.String("handler", "handleToggleList"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing toggles")
 		defer log.Sync()
 
-		req := toggle.ListTogglesReq{}
+		req := togglr.ListTogglesReq{}
 
 		toggles, err := ts.ListToggles(r.Context(), req)
 		if err != nil {
@@ -80,7 +92,7 @@ func HandleToggleGet(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc 
 }
 
 // HandleToggleGetID handles GET requests to the /toggle/{id} endpoint
-func HandleToggleGetID(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleGetID(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log.Debug("fetching toggle", zap.String("id", id))
@@ -112,7 +124,7 @@ func HandleToggleGetID(log *zap.Logger, ts toggle.ToggleService) http.HandlerFun
 }
 
 // HandleToggleDelete handles DELETE requests to the /toggle/{id} endpoint
-func HandleToggleDelete(log *zap.Logger, ts toggle.ToggleService) http.HandlerFunc {
+func HandleToggleDelete(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log.Debug("deleting toggle", zap.String("id", id))

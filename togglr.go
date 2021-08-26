@@ -1,4 +1,4 @@
-package toggle
+package togglr
 
 import (
 	"context"
@@ -40,6 +40,7 @@ type ListTogglesReq struct {
 // A ToggleService performs basic CRUD operations on toggles.
 type ToggleService interface {
 	CreateToggle(ctx context.Context, toggle Toggle) (uid.UID, error)
+	UpdateToggle(ctx context.Context, toggle Toggle) error
 	FetchToggle(ctx context.Context, id uid.UID) (Toggle, error)
 	ListToggles(ctx context.Context, req ListTogglesReq) ([]Toggle, error)
 	DeleteToggle(ctx context.Context, id uid.UID) error

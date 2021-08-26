@@ -6,6 +6,8 @@ import (
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/togglr-io/togglr/env"
+
+	// importing postgres driver implementation for database/sql and goqu
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )

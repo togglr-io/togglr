@@ -1,6 +1,10 @@
 package uid
 
-import "github.com/google/uuid"
+import (
+	"encoding/json"
+
+	"github.com/google/uuid"
+)
 
 // A UID represents a unique identifier. Other packages can leverage this type
 // without caring about the underlying implementation driving it
@@ -17,7 +21,7 @@ func New() UID {
 
 // IsNull returns whether or not a given UID is actually null
 func (u UID) IsNull() bool {
-	return u.Valid
+	return !u.Valid
 }
 
 // FromString attempts to parse a UID from a string
@@ -44,4 +48,15 @@ func (u UID) String() string {
 // Equals returns whether or not two UIDs match
 func (u UID) Equals(uid UID) bool {
 	return u.String() == uid.String()
+}
+
+// UnmarshalJSON implements the json.Unmarshaller interface for UID
+func (u *UID) UnmarshalJSON(data []byte) error {
+	// treat empty strings as null
+	if len(data) == 0 || string(data) == "" || string(data) == "\"\"" || string(data) == "\"null\"" {
+		u.NullUUID = uuid.NullUUID{Valid: false}
+		return nil
+	}
+
+	return json.Unmarshal(data, &u.NullUUID)
 }
