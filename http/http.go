@@ -4,17 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/togglr-io/togglr"
-	"github.com/togglr-io/togglr/uid"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/togglr-io/togglr"
 	"go.uber.org/zap"
 )
 
 // Services define all of the injectable service interfaces used by the HTTP handlers
 type Services struct {
-	ToggleService toggle.ToggleService
+	ToggleService togglr.ToggleService
 }
 
 // A Config captures all of the information necessary to setup an HTTP server
@@ -23,10 +22,6 @@ type Config struct {
 	Port     uint
 	Services Services
 	Logger   *zap.Logger
-}
-
-type idEnvelope struct {
-	ID uid.UID `json:"id"`
 }
 
 // BuildRoutes creates a Router and binds HTTP handlers to the routes. Exported mostly for testing purposes, should

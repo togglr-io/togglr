@@ -2,30 +2,73 @@ package pg
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/togglr-io/togglr"
 	"github.com/togglr-io/togglr/uid"
 )
 
+// TODO (etate): maybe make a more generic version of this using reflection?
+func makeUpdateRec(req togglr.UpdateToggleReq) goqu.Record {
+	rec := goqu.Record{}
+	if req.Key != nil {
+		rec["key"] = req.Key
+	}
+
+	if req.Description != nil {
+		rec["description"] = req.Description
+	}
+
+	if req.Active != nil {
+		rec["active"] = req.Active
+	}
+
+	return rec
+}
+
 // CreateToggle creates a new Toggle in postgres. If the toggle doen't already have an ID, one will be
 // generated
-func (c Client) CreateToggle(ctx context.Context, tog toggle.Toggle) (uid.UID, error) {
+func (c Client) CreateToggle(ctx context.Context, toggle togglr.Toggle) (uid.UID, error) {
 	// if no ID is provided, generate one
-	if !tog.ID.IsNull() {
-		tog.ID = uid.New()
+	if !toggle.ID.IsNull() {
+		toggle.ID = uid.New()
 	}
 
-	if _, err := c.db.Insert("toggles").Rows(tog).Executor().ExecContext(ctx); err != nil {
-		return tog.ID, err
+	if _, err := c.db.Insert("toggles").Rows(toggle).Executor().ExecContext(ctx); err != nil {
+		return toggle.ID, err
 	}
 
-	return tog.ID, nil
+	return toggle.ID, nil
+}
+
+// UpdateToggle updates an existing Toggle in postgres
+func (c Client) UpdateToggle(ctx context.Context, req togglr.UpdateToggleReq) error {
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create transaction: %w", err)
+	}
+
+	// TODO (etate): This is a super naive update. Should probably be a bit more perscriptive.
+	query := tx.Update("toggles").Set(makeUpdateRec(req)).Where(goqu.Ex{"id": req.ID}).Executor()
+	if _, err := query.Exec(); err != nil {
+		if rbErr := tx.Rollback(); err != nil {
+			return fmt.Errorf("rollback failed with err: %s %w", rbErr, err)
+		}
+
+		return fmt.Errorf("failed with rollback: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit: %w", err)
+	}
+
+	return nil
 }
 
 // FetchToggle queries a single Toggle from postgres
-func (c Client) FetchToggle(ctx context.Context, id uid.UID) (toggle.Toggle, error) {
-	var tog toggle.Toggle
+func (c Client) FetchToggle(ctx context.Context, id uid.UID) (togglr.Toggle, error) {
+	var tog togglr.Toggle
 	ds := c.db.From("toggles").Where(goqu.Ex{"id": id})
 	if _, err := ds.ScanStruct(&tog); err != nil {
 		return tog, err
@@ -35,9 +78,9 @@ func (c Client) FetchToggle(ctx context.Context, id uid.UID) (toggle.Toggle, err
 }
 
 // ListToggles queries a slice of Toggles from postgres
-func (c Client) ListToggles(ctx context.Context, req toggle.ListTogglesReq) ([]toggle.Toggle, error) {
+func (c Client) ListToggles(ctx context.Context, req togglr.ListTogglesReq) ([]togglr.Toggle, error) {
 	// default to instantiated value so that we return an empty slice instead of null when there's no results
-	toggles := []toggle.Toggle{}
+	toggles := []togglr.Toggle{}
 	if err := c.db.From("toggles").ScanStructs(&toggles); err != nil {
 		return nil, err
 	}
