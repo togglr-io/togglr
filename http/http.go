@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/togglr-io/togglr"
-	"github.com/togglr-io/togglr/uid"
 	"go.uber.org/zap"
 )
 
@@ -23,10 +22,6 @@ type Config struct {
 	Port     uint
 	Services Services
 	Logger   *zap.Logger
-}
-
-type idEnvelope struct {
-	ID uid.UID `json:"id"`
 }
 
 // BuildRoutes creates a Router and binds HTTP handlers to the routes. Exported mostly for testing purposes, should

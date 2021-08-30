@@ -19,7 +19,7 @@ func HandleTogglePost(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc
 		log.Debug("creating toggle")
 		defer log.Sync()
 
-		var toggle togglr.Toggle
+		var id togglr.ID
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Error("failed to read request", zap.Error(err))
@@ -27,33 +27,44 @@ func HandleTogglePost(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc
 			return
 		}
 
-		if err := json.Unmarshal(body, &toggle); err != nil {
-			log.Error("failed to unmarshal request", zap.Error(err))
+		if err := json.Unmarshal(body, &id); err != nil {
+			log.Error("failed to unmarshal ID from request", zap.Error(err))
 			badRequest(w, "could not unmarshal toggle")
 			return
 		}
 
-		id := toggle.ID
-
 		// whether or not the Toggle has an ID determines if we're creating a new one or
 		// updating an existing one{}
-		if id.IsNull() {
-			id, err = ts.CreateToggle(r.Context(), toggle)
+		if id.ID.IsNull() {
+			var toggle togglr.Toggle
+			if err := json.Unmarshal(body, &toggle); err != nil {
+				log.Error("failed to unmarshal toggle", zap.Error(err))
+				badRequest(w, "could not unmarshal toggle")
+				return
+			}
+
+			id.ID, err = ts.CreateToggle(r.Context(), toggle)
 			if err != nil {
 				log.Error("failed to create toggle", zap.Error(err))
 				serverError(w, "could not save toggle")
 				return
 			}
 		} else {
-			if err := ts.UpdateToggle(r.Context(), toggle); err != nil {
+			var updateReq togglr.UpdateToggleReq
+			if err := json.Unmarshal(body, &updateReq); err != nil {
+				log.Error("failed to unmarshal update req", zap.Error(err))
+				badRequest(w, "could not unmarshal toggle")
+				return
+			}
+
+			if err := ts.UpdateToggle(r.Context(), updateReq); err != nil {
 				log.Error("failed to update toggle", zap.Error(err))
 				serverError(w, "could not save toggle")
 				return
 			}
 		}
 
-		res := idEnvelope{id}
-		data, err := json.Marshal(res)
+		data, err := json.Marshal(id)
 		if err != nil {
 			log.Error("failed to marshal response", zap.Error(err))
 			serverError(w, "could not create toggle")

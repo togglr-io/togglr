@@ -2,11 +2,30 @@ package pg
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/togglr-io/togglr"
 	"github.com/togglr-io/togglr/uid"
 )
+
+// TODO (etate): maybe make a more generic version of this using reflection?
+func makeUpdateRec(req togglr.UpdateToggleReq) goqu.Record {
+	rec := goqu.Record{}
+	if req.Key != nil {
+		rec["key"] = req.Key
+	}
+
+	if req.Description != nil {
+		rec["description"] = req.Description
+	}
+
+	if req.Active != nil {
+		rec["active"] = req.Active
+	}
+
+	return rec
+}
 
 // CreateToggle creates a new Toggle in postgres. If the toggle doen't already have an ID, one will be
 // generated
@@ -24,10 +43,24 @@ func (c Client) CreateToggle(ctx context.Context, toggle togglr.Toggle) (uid.UID
 }
 
 // UpdateToggle updates an existing Toggle in postgres
-func (c Client) UpdateToggle(ctx context.Context, toggle togglr.Toggle) error {
+func (c Client) UpdateToggle(ctx context.Context, req togglr.UpdateToggleReq) error {
+	tx, err := c.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create transaction: %w", err)
+	}
+
 	// TODO (etate): This is a super naive update. Should probably be a bit more perscriptive.
-	if _, err := c.db.Update("toggles").Set(toggle).Executor().Exec(); err != nil {
-		return err
+	query := tx.Update("toggles").Set(makeUpdateRec(req)).Where(goqu.Ex{"id": req.ID}).Executor()
+	if _, err := query.Exec(); err != nil {
+		if rbErr := tx.Rollback(); err != nil {
+			return fmt.Errorf("rollback failed with err: %s %w", rbErr, err)
+		}
+
+		return fmt.Errorf("failed with rollback: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit: %w", err)
 	}
 
 	return nil

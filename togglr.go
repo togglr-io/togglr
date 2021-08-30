@@ -13,6 +13,13 @@ import (
 type Metadata struct {
 }
 
+// An ID is a wrapper struct for working with JSON payloads containing
+// an ID. This is used to differentiate between creates and updates
+// as well as a return type for certain operations.
+type ID struct {
+	ID uid.UID `json:"id"`
+}
+
 // An Account represents a grouping of Users and Toggles.
 type Account struct {
 	ID        uid.UID   `json:"id" db:"id"`
@@ -33,6 +40,17 @@ type Toggle struct {
 	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`
 }
 
+// An UpdateToggleReq contains all of the fields that are possible to update on a Toggle. The main difference from
+// the Toggle struct is that some of the fields are pointers to differentiate from a field being omitted and an
+// actual update containing the zero value
+type UpdateToggleReq struct {
+	ID          uid.UID      `json:"id" db:"id"`
+	Key         *string      `json:"key,omitempty" db:"key"`
+	Description *string      `json:"description,omitempty" db:"description"`
+	Active      *bool        `json:"active" db:"active"`
+	Rules       []rules.Rule `json:"rules" db:"-"`
+}
+
 // ListTogglesReq defines the search parameters that will be used when generating a list of toggles.
 type ListTogglesReq struct {
 }
@@ -40,7 +58,7 @@ type ListTogglesReq struct {
 // A ToggleService performs basic CRUD operations on toggles.
 type ToggleService interface {
 	CreateToggle(ctx context.Context, toggle Toggle) (uid.UID, error)
-	UpdateToggle(ctx context.Context, toggle Toggle) error
+	UpdateToggle(ctx context.Context, req UpdateToggleReq) error
 	FetchToggle(ctx context.Context, id uid.UID) (Toggle, error)
 	ListToggles(ctx context.Context, req ListTogglesReq) ([]Toggle, error)
 	DeleteToggle(ctx context.Context, id uid.UID) error

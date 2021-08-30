@@ -11,7 +11,7 @@ type ToggleService struct {
 	CreateToggleFn     func(ctx context.Context, toggle togglr.Toggle) (uid.UID, error)
 	CreateToggleCalled int
 
-	UpdateToggleFn     func(ctx context.Context, toggle togglr.Toggle) error
+	UpdateToggleFn     func(ctx context.Context, req togglr.UpdateToggleReq) error
 	UpdateToggleCalled int
 
 	FetchToggleFn     func(ctx context.Context, id uid.UID) (togglr.Toggle, error)
@@ -43,10 +43,10 @@ func (m *ToggleService) CreateToggle(ctx context.Context, toggle togglr.Toggle) 
 	return toggle.ID, m.Error
 }
 
-func (m *ToggleService) UpdateToggle(ctx context.Context, toggle togglr.Toggle) error {
+func (m *ToggleService) UpdateToggle(ctx context.Context, req togglr.UpdateToggleReq) error {
 	m.UpdateToggleCalled++
 	if m.UpdateToggleFn != nil {
-		return m.UpdateToggleFn(ctx, toggle)
+		return m.UpdateToggleFn(ctx, req)
 	}
 
 	return m.Error
