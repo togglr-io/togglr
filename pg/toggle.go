@@ -24,6 +24,10 @@ func makeUpdateRec(req togglr.UpdateToggleReq) goqu.Record {
 		rec["active"] = req.Active
 	}
 
+	if req.Rules != nil {
+		rec["rules"] = req.Rules
+	}
+
 	return rec
 }
 
@@ -31,7 +35,7 @@ func makeUpdateRec(req togglr.UpdateToggleReq) goqu.Record {
 // generated
 func (c Client) CreateToggle(ctx context.Context, toggle togglr.Toggle) (uid.UID, error) {
 	// if no ID is provided, generate one
-	if !toggle.ID.IsNull() {
+	if toggle.ID.IsNull() {
 		toggle.ID = uid.New()
 	}
 

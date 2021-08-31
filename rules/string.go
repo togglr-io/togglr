@@ -2,12 +2,13 @@ package rules
 
 // A String expression represents a string literal during rule evaluation
 type String struct {
-	Value string `json:"value"`
+	Type  ExprType `json:"type"`
+	Value string   `json:"value"`
 }
 
 // NewString returns a new String expression
 func NewString(str string) String {
-	return String{str}
+	return String{ExprTypeString, str}
 }
 
 // Eq checks if the other Comparable is a String with the same value

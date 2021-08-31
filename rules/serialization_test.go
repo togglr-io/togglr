@@ -143,7 +143,19 @@ func Test_MarshalExpression(t *testing.T) {
 					rules.BinOpEq,
 				),
 			},
-			expected: `{"left":{"value":"hello"},"right":{"value":"hello"},"op":"=="}`,
+			expected: `{"type":"binary","left":{"type":"string","value":"hello"},"right":{"type":"string","value":"hello"},"op":"=="}`,
+		},
+		{
+			name: "marshal binary with ident",
+			expression: rules.Expression{
+				Type: rules.ExprTypeBinary,
+				Binary: rules.NewBinary(
+					rules.NewIdent("hello", nil),
+					rules.NewString("hello"),
+					rules.BinOpEq,
+				),
+			},
+			expected: `{"type":"binary","left":{"type":"ident","value":"hello"},"right":{"type":"string","value":"hello"},"op":"=="}`,
 		},
 	}
 
