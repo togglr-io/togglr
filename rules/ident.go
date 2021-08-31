@@ -4,13 +4,14 @@ import "fmt"
 
 // An Ident represents some identifier that exists within the metadata object
 type Ident struct {
-	Value    string `json:"value"`
+	Type     ExprType `json:"type"`
+	Value    string   `json:"value"`
 	metadata map[string]Comparable
 }
 
 // NewIdent returns a new Ident expression with a given key and metadata map
 func NewIdent(key string, metadata map[string]Comparable) Ident {
-	return Ident{key, metadata}
+	return Ident{ExprTypeIdent, key, metadata}
 }
 
 // SetMetadata can be used to overwrite the metadata map that an Ident uses

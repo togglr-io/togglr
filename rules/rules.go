@@ -1,10 +1,10 @@
 package rules
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
-
-	"github.com/togglr-io/togglr/uid"
+	"fmt"
 )
 
 // Enums
@@ -64,6 +64,8 @@ func ExpressionFromExpr(expr Expr) Expression {
 		return Expression{Float: v, Type: ExprTypeFloat}
 	case Bool:
 		return Expression{Bool: v, Type: ExprTypeBool}
+	case Expression:
+		return v // if we find an Expression, just return it as is
 	}
 
 	return Expression{Type: ExprTypeNoop}
@@ -109,7 +111,7 @@ func (e Expression) MarshalJSON() ([]byte, error) {
 		return json.Marshal(e.Bool)
 	}
 
-	return nil, errors.New("failed to marshal invalid Expression type")
+	return nil, fmt.Errorf("failed to marshal invalid Expression type %s", e.Type)
 }
 
 func (e *Expression) UnmarshalJSON(data []byte) error {
@@ -141,12 +143,53 @@ func (e *Expression) UnmarshalJSON(data []byte) error {
 		return json.Unmarshal(data, &e.Bool)
 	}
 
-	return errors.New("failed to unmarshal invalid Expression type")
+	return fmt.Errorf("failed to unmarshal invalid Expression type %s", e.Type)
 }
 
 // A Rule evaluates against Metadata to determine a value for a particular Toggle.
 type Rule struct {
-	ID       uid.UID    `json:"id"`
-	ToggleID uid.UID    `json:"toggleID"`
-	Expr     Expression `json:"expression"`
+	Op   BinOp      `json:"op"`
+	Expr Expression `json:"expression"`
+}
+
+func (r Rule) Validate() error {
+	if r.Op != BinOpAnd && r.Op != BinOpOr {
+		return errors.New("A Rule Op can only be logical (&& ||)")
+	}
+
+	return nil
+}
+
+// Rules is an alias to a Rule slice that we can implement some interfaces on
+type Rules []Rule
+
+// Value impelments the sql.Valuer interface
+func (r Rules) Value() (driver.Value, error) {
+	data, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// Scan impelements the sql.Scanner interface
+func (r *Rules) Scan(src interface{}) error {
+	var source []byte
+	switch src.(type) {
+	case string:
+		source = []byte(src.(string))
+	case []byte:
+		source = src.([]byte)
+	case nil:
+		source = nil
+	default:
+		return errors.New("incompatible type for Rule")
+	}
+
+	if err := json.Unmarshal(source, r); err != nil {
+		return fmt.Errorf("failed to unmarshal database JSON into Rules: %w", err)
+	}
+
+	return nil
 }

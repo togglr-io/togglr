@@ -30,14 +30,14 @@ type Account struct {
 
 // A Toggle represents a key and the set of rules that determine the value that should be returned for it.
 type Toggle struct {
-	ID          uid.UID      `json:"id" db:"id"`
-	AccountID   uid.UID      `json:"accountId" db:"account_id"`
-	Key         string       `json:"key" db:"key"`
-	Description string       `json:"description" db:"description"`
-	Active      bool         `json:"active" db:"active"`
-	Rules       []rules.Rule `json:"rules" db:"-"`
-	CreatedAt   time.Time    `json:"createdAt" db:"created_at" goqu:"skipinsert"`
-	UpdatedAt   time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`
+	ID          uid.UID     `json:"id" db:"id"`
+	AccountID   uid.UID     `json:"accountId" db:"account_id"`
+	Key         string      `json:"key" db:"key"`
+	Description string      `json:"description" db:"description"`
+	Active      bool        `json:"active" db:"active"`
+	Rules       rules.Rules `json:"rules" db:"rules"`
+	CreatedAt   time.Time   `json:"createdAt" db:"created_at" goqu:"skipinsert"`
+	UpdatedAt   time.Time   `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`
 }
 
 // An UpdateToggleReq contains all of the fields that are possible to update on a Toggle. The main difference from

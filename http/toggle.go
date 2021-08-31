@@ -34,7 +34,7 @@ func HandleTogglePost(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc
 		}
 
 		// whether or not the Toggle has an ID determines if we're creating a new one or
-		// updating an existing one{}
+		// updating an existing one
 		if id.ID.IsNull() {
 			var toggle togglr.Toggle
 			if err := json.Unmarshal(body, &toggle); err != nil {

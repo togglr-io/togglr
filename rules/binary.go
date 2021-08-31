@@ -1,6 +1,8 @@
 package rules
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // A BinOp represents all possible binary operations.
 type BinOp string
@@ -31,6 +33,7 @@ func NewBinary(left, right Expr, op BinOp) Binary {
 
 // have to provide an alternate struct as a marshal target, otherwise there's a cycling issue between Binary and Expression
 type marshalTarget struct {
+	Type  ExprType   `json:"type"`
 	Left  Expression `json:"left"`
 	Right Expression `json:"right"`
 	Op    BinOp      `json:"op"`
@@ -53,6 +56,7 @@ func (b *Binary) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements the json.Marshaler interface
 func (b Binary) MarshalJSON() ([]byte, error) {
 	target := marshalTarget{
+		Type:  ExprTypeBinary,
 		Left:  ExpressionFromExpr(b.left),
 		Right: ExpressionFromExpr(b.right),
 		Op:    b.op,
