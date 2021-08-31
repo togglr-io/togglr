@@ -21,9 +21,9 @@ const (
 
 // A Binary expression that compares a left Expr with a right Expr using a particular operator
 type Binary struct {
-	left  Expr
-	right Expr
-	op    BinOp
+	Left  Expr
+	Right Expr
+	Op    BinOp
 }
 
 // NewBinary returns a new Binary expression
@@ -46,9 +46,9 @@ func (b *Binary) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	b.left = target.Left
-	b.right = target.Right
-	b.op = target.Op
+	b.Left = target.Left
+	b.Right = target.Right
+	b.Op = target.Op
 
 	return nil
 }
@@ -57,9 +57,9 @@ func (b *Binary) UnmarshalJSON(data []byte) error {
 func (b Binary) MarshalJSON() ([]byte, error) {
 	target := marshalTarget{
 		Type:  ExprTypeBinary,
-		Left:  ExpressionFromExpr(b.left),
-		Right: ExpressionFromExpr(b.right),
-		Op:    b.op,
+		Left:  ExpressionFromExpr(b.Left),
+		Right: ExpressionFromExpr(b.Right),
+		Op:    b.Op,
 	}
 
 	return json.Marshal(target)
@@ -84,9 +84,9 @@ func (b Binary) IsTrue() bool {
 
 // Evaluate resolves the Binary expression to the resulting Bool expression
 func (b Binary) Evaluate() Comparable {
-	left := b.left.Evaluate()
-	right := b.right.Evaluate()
-	switch b.op {
+	left := b.Left.Evaluate()
+	right := b.Right.Evaluate()
+	switch b.Op {
 	case BinOpEq:
 		return NewBool(left.Eq(right))
 	case BinOpNotEq:

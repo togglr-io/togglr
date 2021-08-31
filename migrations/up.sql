@@ -35,6 +35,15 @@ CREATE TABLE IF NOT EXISTS toggles(
 	UNIQUE (account_id, key)
 );
 
+CREATE TABLE IF NOT EXISTS metadata_keys(
+	id UUID PRIMARY KEY,
+	account_id UUID NOT NULL REFERENCES accounts(id),
+	key VARCHAR(512) NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (account_id, key)
+);
+
 -- create app user
 DO
 $do$

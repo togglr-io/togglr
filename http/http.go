@@ -13,7 +13,8 @@ import (
 
 // Services define all of the injectable service interfaces used by the HTTP handlers
 type Services struct {
-	ToggleService togglr.ToggleService
+	ToggleService   togglr.ToggleService
+	MetadataService togglr.MetadataService
 }
 
 // A Config captures all of the information necessary to setup an HTTP server
@@ -40,6 +41,8 @@ func BuildRoutes(cfg Config) chi.Router {
 	r.Get("/toggle", HandleToggleGet(cfg.Logger, cfg.Services.ToggleService))
 	r.Get("/toggle/{id}", HandleToggleGetID(cfg.Logger, cfg.Services.ToggleService))
 	r.Delete("/toggle/{id}", HandleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
+
+	r.Get("/metadata/{accountID}", HandleMetadataGet(cfg.Logger, cfg.Services.MetadataService))
 
 	return r
 }

@@ -125,7 +125,7 @@ func HandleToggleGetID(log *zap.Logger, ts togglr.ToggleService) http.HandlerFun
 
 		data, err := json.Marshal(tog)
 		if err != nil {
-			log.Error("failed to unmarshal toggle", zap.Error(err))
+			log.Error("failed to marshal toggle", zap.Error(err))
 			serverError(w, "could not fetch toggle")
 			return
 		}
