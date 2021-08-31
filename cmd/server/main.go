@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/mattn/go-colorable"
+	"github.com/togglr-io/togglr"
 	"github.com/togglr-io/togglr/env"
 	"github.com/togglr-io/togglr/http"
 	"github.com/togglr-io/togglr/pg"
-	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -38,8 +39,8 @@ func run() error {
 
 	// initialize services to be used
 	services := http.Services{
-		// ToggleService: mock.NewToggleService(nil),
-		ToggleService: db,
+		ToggleService:   togglr.NewToggleService(db, db, log),
+		MetadataService: db,
 	}
 
 	// build server

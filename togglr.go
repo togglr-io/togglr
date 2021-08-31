@@ -44,11 +44,12 @@ type Toggle struct {
 // the Toggle struct is that some of the fields are pointers to differentiate from a field being omitted and an
 // actual update containing the zero value
 type UpdateToggleReq struct {
-	ID          uid.UID      `json:"id" db:"id"`
-	Key         *string      `json:"key,omitempty" db:"key"`
-	Description *string      `json:"description,omitempty" db:"description"`
-	Active      *bool        `json:"active" db:"active"`
-	Rules       []rules.Rule `json:"rules" db:"-"`
+	ID          uid.UID     `json:"id" db:"id"`
+	AccountID   uid.UID     `json:"accountId" db:"-"`
+	Key         *string     `json:"key,omitempty" db:"key"`
+	Description *string     `json:"description,omitempty" db:"description"`
+	Active      *bool       `json:"active" db:"active"`
+	Rules       rules.Rules `json:"rules" db:"rules"`
 }
 
 // ListTogglesReq defines the search parameters that will be used when generating a list of toggles.
@@ -62,4 +63,20 @@ type ToggleService interface {
 	FetchToggle(ctx context.Context, id uid.UID) (Toggle, error)
 	ListToggles(ctx context.Context, req ListTogglesReq) ([]Toggle, error)
 	DeleteToggle(ctx context.Context, id uid.UID) error
+}
+
+// A MetadataKey represents a key that an account has used before. It's primary purpose is
+// populating option lists.
+type MetadataKey struct {
+	ID        uid.UID   `json:"id" db:"id"`
+	AccountID uid.UID   `json:"accountId" db:"account_id"`
+	Key       string    `json:"key" db:"key"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at" goqu:"skipinsert"`
+	UpdatedAt time.Time `json:"updatedAt" db:"updated_at" goqu:"skipinsert"`
+}
+
+// A MetadataService works with various aspects of Metadata within Togglr.
+type MetadataService interface {
+	FetchKeys(ctx context.Context, accountID uid.UID) ([]MetadataKey, error)
+	PushKeys(ctx context.Context, accountID uid.UID, key ...string) error
 }
