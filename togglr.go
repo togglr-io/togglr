@@ -10,8 +10,7 @@ import (
 
 // Metadata is included with the initial request for Toggles when a new client initializes. It's used to
 // evaluate rules and determine the final value for each toggle.
-type Metadata struct {
-}
+type Metadata map[string]rules.Comparable
 
 // An ID is a wrapper struct for working with JSON payloads containing
 // an ID. This is used to differentiate between creates and updates
@@ -54,6 +53,7 @@ type UpdateToggleReq struct {
 
 // ListTogglesReq defines the search parameters that will be used when generating a list of toggles.
 type ListTogglesReq struct {
+	AccountID uid.UID `json:"accountId" db:"account_id"`
 }
 
 // A ToggleService performs basic CRUD operations on toggles.
@@ -79,4 +79,14 @@ type MetadataKey struct {
 type MetadataService interface {
 	FetchKeys(ctx context.Context, accountID uid.UID) ([]MetadataKey, error)
 	PushKeys(ctx context.Context, accountID uid.UID, key ...string) error
+}
+
+// ResolvedToggles is a simple mapping of toggle keys to boolean values
+// representing whether the toggle is on or off
+type ResolvedToggles map[string]bool
+
+// A Resolver returns a map of resolved toggles for a given account
+// using the given Metadata.
+type Resolver interface {
+	Resolve(ctx context.Context, accountID uid.UID, metdata Metadata) (ResolvedToggles, error)
 }
