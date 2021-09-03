@@ -36,6 +36,6 @@ func (s String) IsTrue() bool {
 }
 
 // Evaluate returns the String expression as a Comparable
-func (s String) Evaluate() Comparable {
+func (s String) Evaluate(md Metadata) Comparable {
 	return s
 }

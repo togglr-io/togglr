@@ -106,7 +106,8 @@ func HandleToggleGet(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc 
 func HandleToggleGetID(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		log.Debug("fetching toggle", zap.String("id", id))
+		log = log.With(zap.String("toggleID", id))
+		log.Debug("fetching toggle")
 		defer log.Sync()
 
 		uid, err := uid.FromString(id)
@@ -138,7 +139,8 @@ func HandleToggleGetID(log *zap.Logger, ts togglr.ToggleService) http.HandlerFun
 func HandleToggleDelete(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		log.Debug("deleting toggle", zap.String("id", id))
+		log = log.With(zap.String("toggleID", id))
+		log.Debug("deleting toggle")
 		defer log.Sync()
 
 		uid, err := uid.FromString(id)

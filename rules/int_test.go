@@ -71,7 +71,7 @@ func Test_IntComparable(t *testing.T) {
 
 func Test_IntEvaluate(t *testing.T) {
 	str := rules.NewInt(42)
-	evaluated := str.Evaluate()
+	evaluated := str.Evaluate(nil)
 	if val, ok := evaluated.(rules.Int); ok {
 		if val.Eq(rules.NewInt(42)) {
 			return

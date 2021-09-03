@@ -8,10 +8,6 @@ import (
 	"github.com/togglr-io/togglr/uid"
 )
 
-// Metadata is included with the initial request for Toggles when a new client initializes. It's used to
-// evaluate rules and determine the final value for each toggle.
-type Metadata map[string]rules.Comparable
-
 // An ID is a wrapper struct for working with JSON payloads containing
 // an ID. This is used to differentiate between creates and updates
 // as well as a return type for certain operations.
@@ -88,5 +84,5 @@ type ResolvedToggles map[string]bool
 // A Resolver returns a map of resolved toggles for a given account
 // using the given Metadata.
 type Resolver interface {
-	Resolve(ctx context.Context, accountID uid.UID, metdata Metadata) (ResolvedToggles, error)
+	Resolve(ctx context.Context, accountID uid.UID, metdata rules.Metadata) (ResolvedToggles, error)
 }

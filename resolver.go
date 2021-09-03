@@ -17,7 +17,7 @@ func NewResolver(ts ToggleService) DefaultResolver {
 	}
 }
 
-func (r DefaultResolver) Resolve(ctx context.Context, accountID uid.UID, metadata Metadata) (ResolvedToggles, error) {
+func (r DefaultResolver) Resolve(ctx context.Context, accountID uid.UID, md rules.Metadata) (ResolvedToggles, error) {
 	resolved := make(ResolvedToggles)
 	toggles, err := r.ts.ListToggles(ctx, ListTogglesReq{AccountID: accountID})
 	if err != nil {
@@ -25,7 +25,7 @@ func (r DefaultResolver) Resolve(ctx context.Context, accountID uid.UID, metadat
 	}
 
 	for _, toggle := range toggles {
-		resolved[toggle.Key] = rules.EvaluateRules(toggle.Rules...)
+		resolved[toggle.Key] = rules.EvaluateRules(md, toggle.Rules...)
 	}
 
 	return resolved, nil

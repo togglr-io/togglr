@@ -71,7 +71,7 @@ func Test_FloatComparable(t *testing.T) {
 
 func Test_FloatEvaluate(t *testing.T) {
 	str := rules.NewFloat(42)
-	evaluated := str.Evaluate()
+	evaluated := str.Evaluate(nil)
 	if val, ok := evaluated.(rules.Float); ok {
 		if val.Eq(rules.NewFloat(42)) {
 			return

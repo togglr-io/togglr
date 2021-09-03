@@ -65,27 +65,10 @@ func (b Binary) MarshalJSON() ([]byte, error) {
 	return json.Marshal(target)
 }
 
-// Eq checks if the evaluated result of the Binary expression is equal to the other Comparable
-func (b Binary) Eq(other Comparable) bool {
-	val := b.Evaluate()
-	return val.Eq(other)
-}
-
-// Gt always returns false since Binary expression always resolve to a Bool
-func (b Binary) Gt(other Comparable) bool {
-	// since Binary exprs technically evaluate to Bools, implementing Gt doesn't really make sense
-	return false
-}
-
-// IsTrue is a truthiness check that relies on the evaluate of the Binary expression
-func (b Binary) IsTrue() bool {
-	return b.Evaluate().IsTrue()
-}
-
 // Evaluate resolves the Binary expression to the resulting Bool expression
-func (b Binary) Evaluate() Comparable {
-	left := b.Left.Evaluate()
-	right := b.Right.Evaluate()
+func (b Binary) Evaluate(md Metadata) Comparable {
+	left := b.Left.Evaluate(md)
+	right := b.Right.Evaluate(md)
 	switch b.Op {
 	case BinOpEq:
 		return NewBool(left.Eq(right))

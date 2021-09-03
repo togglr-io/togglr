@@ -37,6 +37,6 @@ func (f Float) IsTrue() bool {
 }
 
 // Evaluate returns the Float expression as a Comparable
-func (f Float) Evaluate() Comparable {
+func (f Float) Evaluate(md Metadata) Comparable {
 	return f
 }

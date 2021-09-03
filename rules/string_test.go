@@ -71,7 +71,7 @@ func Test_StringComparable(t *testing.T) {
 
 func Test_StringEvaluate(t *testing.T) {
 	str := rules.NewString("hello, world!")
-	evaluated := str.Evaluate()
+	evaluated := str.Evaluate(nil)
 	if val, ok := evaluated.(rules.String); ok {
 		if val.Eq(rules.NewString("hello, world!")) {
 			return
