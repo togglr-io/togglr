@@ -115,12 +115,7 @@ func Test_UnmarshalExpression(t *testing.T) {
 				t.Fatalf("failed to unmarshal: %s", err)
 			}
 
-			// catch ident types and insert metadata
-			if expr.Type == rules.ExprTypeIdent {
-				expr.Ident.SetMetadata(c.metadata)
-			}
-
-			if !expr.Evaluate().Eq(c.expected) {
+			if !expr.Evaluate(c.metadata).Eq(c.expected) {
 				t.Fatalf("expected expression to evaluate to %+v", c.expected)
 			}
 		})
@@ -150,7 +145,7 @@ func Test_MarshalExpression(t *testing.T) {
 			expression: rules.Expression{
 				Type: rules.ExprTypeBinary,
 				Binary: rules.NewBinary(
-					rules.NewIdent("hello", nil),
+					rules.NewIdent("hello"),
 					rules.NewString("hello"),
 					rules.BinOpEq,
 				),

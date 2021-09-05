@@ -15,6 +15,7 @@ import (
 type Services struct {
 	ToggleService   togglr.ToggleService
 	MetadataService togglr.MetadataService
+	Resolver        togglr.Resolver
 }
 
 // A Config captures all of the information necessary to setup an HTTP server
@@ -43,6 +44,7 @@ func BuildRoutes(cfg Config) chi.Router {
 	r.Delete("/toggle/{id}", HandleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
 
 	r.Get("/metadata/{accountID}", HandleMetadataGet(cfg.Logger, cfg.Services.MetadataService))
+	r.Post("/resolve/{accountID}", HandleResolvePost(cfg.Logger, cfg.Services.Resolver))
 
 	return r
 }

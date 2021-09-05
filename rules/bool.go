@@ -30,6 +30,6 @@ func (b Bool) IsTrue() bool {
 }
 
 // Evaluate returns the Bool expression as a Comparable
-func (b Bool) Evaluate() Comparable {
+func (b Bool) Evaluate(md Metadata) Comparable {
 	return b
 }

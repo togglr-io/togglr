@@ -7,6 +7,10 @@ import (
 	"fmt"
 )
 
+// Metadata is included with the initial request for Toggles when a new client initializes. It's used to
+// evaluate rules and determine the final value for each toggle.
+type Metadata map[string]Comparable
+
 // Enums
 
 // An ExprType represents all of the types of expressions possible.
@@ -33,7 +37,7 @@ type Comparable interface {
 
 // An Expr is anything that can Evaluate to a Comparable.
 type Expr interface {
-	Evaluate() Comparable
+	Evaluate(md Metadata) Comparable
 }
 
 // An Expression is the physical (i.e. serializable) representation for everything implementing the Expr interface. It's essentially a discriminated union.
@@ -71,22 +75,22 @@ func ExpressionFromExpr(expr Expr) Expression {
 	return Expression{Type: ExprTypeNoop}
 }
 
-func (e Expression) Evaluate() Comparable {
+func (e Expression) Evaluate(md Metadata) Comparable {
 	switch e.Type {
 	case ExprTypeBinary:
-		return e.Binary.Evaluate()
+		return e.Binary.Evaluate(md)
 	case ExprTypeUnary:
-		return e.Unary.Evaluate()
+		return e.Unary.Evaluate(md)
 	case ExprTypeIdent:
-		return e.Ident.Evaluate()
+		return e.Ident.Evaluate(md)
 	case ExprTypeString:
-		return e.String.Evaluate()
+		return e.String.Evaluate(md)
 	case ExprTypeInt:
-		return e.Int.Evaluate()
+		return e.Int.Evaluate(md)
 	case ExprTypeFloat:
-		return e.Float.Evaluate()
+		return e.Float.Evaluate(md)
 	case ExprTypeBool:
-		return e.Bool.Evaluate()
+		return e.Bool.Evaluate(md)
 	}
 
 	// TODO (etate): consider adding errors or a noop for cases like these
@@ -192,4 +196,33 @@ func (r *Rules) Scan(src interface{}) error {
 	}
 
 	return nil
+}
+
+func EvaluateRules(md Metadata, rules ...Rule) bool {
+	var prevExpr Expr
+	prevExpr = NewBool(true)
+	for _, rule := range rules {
+		prevExpr = NewBinary(prevExpr, rule.Expr, rule.Op)
+	}
+
+	return prevExpr.Evaluate(md).IsTrue()
+}
+
+// MetaFromRaw does a typeswitch on each metadata value in order to create a map of Comparables.
+func MetaFromRaw(raw map[string]interface{}) Metadata {
+	md := make(Metadata, len(raw))
+	for key, value := range raw {
+		switch v := value.(type) {
+		case string:
+			md[key] = NewString(v)
+		case int:
+			md[key] = NewInt(v)
+		case float32:
+			md[key] = NewFloat(v)
+		case bool:
+			md[key] = NewBool(v)
+		}
+	}
+
+	return md
 }

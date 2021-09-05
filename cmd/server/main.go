@@ -41,6 +41,7 @@ func run() error {
 	services := http.Services{
 		ToggleService:   togglr.NewToggleService(db, db, log),
 		MetadataService: db,
+		Resolver:        togglr.NewResolver(db),
 	}
 
 	// build server

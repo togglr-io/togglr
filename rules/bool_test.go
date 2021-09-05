@@ -63,7 +63,7 @@ func Test_BoolComparable(t *testing.T) {
 
 func Test_BoolEvaluate(t *testing.T) {
 	str := rules.NewBool(true)
-	evaluated := str.Evaluate()
+	evaluated := str.Evaluate(nil)
 	if val, ok := evaluated.(rules.Bool); ok {
 		if val.Eq(rules.NewBool(true)) {
 			return

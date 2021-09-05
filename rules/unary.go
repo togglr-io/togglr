@@ -14,13 +14,8 @@ type Unary struct {
 	op   UnaryOp
 }
 
-func (u Unary) Eq(other Comparable) bool {
-	val := u.Evaluate()
-	return val.Eq(other)
-}
-
-func (u Unary) Evaluate() Comparable {
-	val := u.expr.Evaluate()
+func (u Unary) Evaluate(md Metadata) Comparable {
+	val := u.expr.Evaluate(md)
 	switch u.op {
 	case UnaryOpNot:
 		return NewBool(!val.IsTrue())

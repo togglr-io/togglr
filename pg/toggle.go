@@ -85,7 +85,12 @@ func (c Client) FetchToggle(ctx context.Context, id uid.UID) (togglr.Toggle, err
 func (c Client) ListToggles(ctx context.Context, req togglr.ListTogglesReq) ([]togglr.Toggle, error) {
 	// default to instantiated value so that we return an empty slice instead of null when there's no results
 	toggles := []togglr.Toggle{}
-	if err := c.db.From("toggles").ScanStructs(&toggles); err != nil {
+	query := c.db.From("toggles")
+	if !req.AccountID.IsNull() {
+		query.Where(goqu.Ex{"account_id": req.AccountID})
+	}
+
+	if err := query.ScanStructs(&toggles); err != nil {
 		return nil, err
 	}
 

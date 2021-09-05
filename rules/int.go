@@ -35,6 +35,6 @@ func (i Int) IsTrue() bool {
 }
 
 // Evaluate returns the Int expression as a Comparable
-func (i Int) Evaluate() Comparable {
+func (i Int) Evaluate(md Metadata) Comparable {
 	return i
 }
