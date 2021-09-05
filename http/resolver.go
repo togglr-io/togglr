@@ -13,8 +13,8 @@ import (
 )
 
 // HandleResolvePost handles POST requests to the /resolve endpoint
-func HandleResolvePost(log *zap.Logger, resolver togglr.Resolver) http.HandlerFunc {
-	log = log.With(zap.String("handler", "handleResolverPost"))
+func HandleResolvePOST(log *zap.Logger, resolver togglr.Resolver) http.HandlerFunc {
+	log = log.With(zap.String("handler", "handleResolvePOST"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accountID := chi.URLParam(r, "accountID")

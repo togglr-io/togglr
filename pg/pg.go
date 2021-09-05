@@ -3,6 +3,8 @@ package pg
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/togglr-io/togglr/env"
@@ -58,4 +60,43 @@ func NewClient(cfg Config) (Client, error) {
 		rawDB: db,
 		db:    dialect.DB(db),
 	}, nil
+}
+
+// updateReqToRecord takes an update struct and generates a goqu.Record, omitting empty values
+func updateReqToRecord(st interface{}) goqu.Record {
+	typ := reflect.TypeOf(st)
+	val := reflect.ValueOf(st)
+	kind := val.Kind()
+
+	rec := goqu.Record{}
+	if kind == reflect.Struct {
+		for i := 0; i < val.NumField(); i++ {
+			field := val.Field(i)
+			fieldType := typ.Field(i)
+			dbTag := fieldType.Tag.Get("db")
+			// no db tag present means it's not part of the update query (e.g. the primary key)
+			if dbTag == "-" || dbTag == "" {
+				continue
+			}
+
+			if strings.Contains(dbTag, "omitempty") {
+				if field.IsZero() {
+					continue
+				}
+			}
+
+			rec[strings.Split(dbTag, ",")[0]] = field.Interface()
+		}
+	}
+
+	return rec
+}
+
+func (c Client) handleTxErr(tx *goqu.TxDatabase, err error) error {
+	if rbErr := tx.Rollback(); rbErr != nil {
+		c.log.Error("rollback failure", zap.Error(rbErr))
+		return fmt.Errorf("failed without rollback: %w", err)
+	}
+
+	return fmt.Errorf("failed with rollback: %w", err)
 }
