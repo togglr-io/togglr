@@ -26,3 +26,13 @@ func (u Unary) Evaluate(md Metadata) Comparable {
 
 	return NewBool(val.IsTrue())
 }
+
+func (u Unary) MarshalJSON() ([]byte, error) {
+	// TODO (etate): implement once we actually use unary expressions
+	return nil, nil
+}
+
+func (u *Unary) UnmarshalJSON(data []byte) error {
+	// TODO (etate): implement once we actually use unary expressions
+	return nil
+}

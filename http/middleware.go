@@ -31,7 +31,7 @@ func Telemetry(logger *zap.Logger) Middleware {
 			start := time.Now()
 			requestID := uuid.New().String()
 			newCtx := WithRequestID(r.Context(), requestID)
-			r.WithContext(newCtx)
+			r = r.WithContext(newCtx)
 			logger = logger.With(
 				zap.String("path", r.URL.String()),
 				zap.String("method", r.Method),

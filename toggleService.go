@@ -34,9 +34,9 @@ func extractKeys(expr rules.Expr) []string {
 	case rules.Expression:
 		switch v.Type {
 		case rules.ExprTypeBinary:
-			keys = append(extractKeys(v.Binary))
+			keys = append(keys, extractKeys(v.Binary)...)
 		case rules.ExprTypeIdent:
-			keys = append(extractKeys(v.Ident))
+			keys = append(keys, extractKeys(v.Ident)...)
 		}
 	case rules.Binary:
 		keys = append(keys, extractKeys(v.Left)...)

@@ -180,11 +180,11 @@ func (r Rules) Value() (driver.Value, error) {
 // Scan impelements the sql.Scanner interface
 func (r *Rules) Scan(src interface{}) error {
 	var source []byte
-	switch src.(type) {
+	switch val := src.(type) {
 	case string:
-		source = []byte(src.(string))
+		source = []byte(val)
 	case []byte:
-		source = src.([]byte)
+		source = val
 	case nil:
 		source = nil
 	default:
