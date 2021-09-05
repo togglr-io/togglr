@@ -69,6 +69,7 @@ func (s DefaultToggleService) CreateToggle(ctx context.Context, toggle Toggle) (
 	// push keys asynchronously so we don't keep the caller waiting
 	go s.pushKeys(ctx, toggle.AccountID, toggle.Rules)
 
+	toggle.ID = uid.New()
 	return s.ts.CreateToggle(ctx, toggle)
 }
 

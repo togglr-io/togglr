@@ -88,7 +88,6 @@ func Test_DefaultResolver(t *testing.T) {
 		t.Fatalf("failed to resolve toggles: %s", err)
 	}
 
-	t.Logf("resolved: %v", resolved)
 	admin, ok := resolved["admin-feature"]
 	if !ok {
 		t.Fatalf("expected 'admin-feature' flag to be present")
