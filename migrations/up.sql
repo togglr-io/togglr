@@ -1,3 +1,12 @@
+-- create update trigger
+CREATE OR REPLACE FUNCTION updated_at_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.updated_at = now();
+	RETURN NEW;
+END;
+$$ language 'plpgsql';
+
 -- create app tables
 CREATE TABLE IF NOT EXISTS accounts(
 	id UUID PRIMARY KEY,
@@ -6,21 +15,37 @@ CREATE TABLE IF NOT EXISTS accounts(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TRIGGER accounts_updated_at BEFORE UPDATE
+ON accounts FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+
+
+CREATE TABLE IF NOT EXISTS identity_types(
+	name VARCHAR(64) PRIMARY KEY,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE IF NOT EXISTS users(
 	id UUID PRIMARY KEY,
 	email VARCHAR(320) NOT NULL,
 	name VARCHAR(512) NOT NULL,
+	identity_type VARCHAR(64) NOT NULL REFERENCES identity_types(name),
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (email, identity_type)
 );
+
+CREATE TRIGGER users_updated_at BEFORE UPDATE
+ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+
 
 
 CREATE TABLE IF NOT EXISTS account_users(
 	account_id UUID NOT NULL REFERENCES accounts(id),
 	user_id UUID NOT NULL REFERENCES users(id),
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (account_id, user_id)
 );
+
 
 
 CREATE TABLE IF NOT EXISTS toggles(
@@ -34,6 +59,10 @@ CREATE TABLE IF NOT EXISTS toggles(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (account_id, key)
 );
+CREATE TRIGGER toggles_updated_at BEFORE UPDATE
+ON toggles FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+
+
 
 CREATE TABLE IF NOT EXISTS metadata_keys(
 	id UUID PRIMARY KEY,
@@ -43,6 +72,10 @@ CREATE TABLE IF NOT EXISTS metadata_keys(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (account_id, key)
 );
+CREATE TRIGGER metadata_keys_updated_at BEFORE UPDATE
+ON metadata_keys FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
+
+
 
 -- create app user
 DO
@@ -68,7 +101,16 @@ END
 $do$;
 
 
+-- initial data migration
+INSERT INTO identity_types (name) VALUES
+('github'),
+('google'),
+('basic')
+ON CONFLICT DO NOTHING;
+
 -- add some test data
 INSERT INTO accounts (id, name) VALUES
 ('8dc8c3cd-7c2a-4a4c-bc1e-7ba042096029', 'Toggle Test')
 ON CONFLICT DO NOTHING;
+
+

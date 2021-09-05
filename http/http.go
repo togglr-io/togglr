@@ -15,6 +15,8 @@ import (
 type Services struct {
 	ToggleService   togglr.ToggleService
 	MetadataService togglr.MetadataService
+	AccountService  togglr.AccountService
+	UserService     togglr.UserService
 	Resolver        togglr.Resolver
 }
 
@@ -38,13 +40,25 @@ func BuildRoutes(cfg Config) chi.Router {
 		AllowedOrigins: []string{"http://localhost:3000", "http://localhost:9001"},
 	}))
 
-	r.Post("/toggle", HandleTogglePost(cfg.Logger, cfg.Services.ToggleService))
-	r.Get("/toggle", HandleToggleGet(cfg.Logger, cfg.Services.ToggleService))
-	r.Get("/toggle/{id}", HandleToggleGetID(cfg.Logger, cfg.Services.ToggleService))
-	r.Delete("/toggle/{id}", HandleToggleDelete(cfg.Logger, cfg.Services.ToggleService))
+	r.Post("/toggle", HandleTogglePOST(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle", HandleToggleGET(cfg.Logger, cfg.Services.ToggleService))
+	r.Get("/toggle/{id}", HandleToggleIdGET(cfg.Logger, cfg.Services.ToggleService))
+	r.Delete("/toggle/{id}", HandleToggleDELETE(cfg.Logger, cfg.Services.ToggleService))
 
-	r.Get("/metadata/{accountID}", HandleMetadataGet(cfg.Logger, cfg.Services.MetadataService))
-	r.Post("/resolve/{accountID}", HandleResolvePost(cfg.Logger, cfg.Services.Resolver))
+	r.Get("/metadata/{accountID}", HandleMetadataGET(cfg.Logger, cfg.Services.MetadataService))
+	r.Post("/resolve/{accountID}", HandleResolvePOST(cfg.Logger, cfg.Services.Resolver))
+
+	r.Post("/account", HandleAccountPOST(cfg.Logger, cfg.Services.AccountService))
+	r.Get("/account", HandleAccountGET(cfg.Logger, cfg.Services.AccountService))
+	r.Get("/account/{id}", HandleAccountIdGET(cfg.Logger, cfg.Services.AccountService))
+	r.Get("/account/{id}/user", HandleAccountUsersGET(cfg.Logger, cfg.Services.UserService))
+	r.Post("/account/{id}/user", HandleAccountUsersPOST(cfg.Logger, cfg.Services.AccountService))
+
+	r.Post("/user", HandleUserPOST(cfg.Logger, cfg.Services.UserService))
+	// a GET on /user returns the currently logged in user
+	r.Get("/user", HandleUserGET(cfg.Logger, cfg.Services.UserService))
+	r.Get("/user/{id}", HandleUserIdGET(cfg.Logger, cfg.Services.UserService))
+	r.Delete("/user/{id}", HandleUserDELETE(cfg.Logger, cfg.Services.UserService))
 
 	return r
 }

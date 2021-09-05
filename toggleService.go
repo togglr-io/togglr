@@ -34,9 +34,9 @@ func extractKeys(expr rules.Expr) []string {
 	case rules.Expression:
 		switch v.Type {
 		case rules.ExprTypeBinary:
-			keys = append(extractKeys(v.Binary))
+			keys = append(keys, extractKeys(v.Binary)...)
 		case rules.ExprTypeIdent:
-			keys = append(extractKeys(v.Ident))
+			keys = append(keys, extractKeys(v.Ident)...)
 		}
 	case rules.Binary:
 		keys = append(keys, extractKeys(v.Left)...)
@@ -69,6 +69,7 @@ func (s DefaultToggleService) CreateToggle(ctx context.Context, toggle Toggle) (
 	// push keys asynchronously so we don't keep the caller waiting
 	go s.pushKeys(ctx, toggle.AccountID, toggle.Rules)
 
+	toggle.ID = uid.New()
 	return s.ts.CreateToggle(ctx, toggle)
 }
 
