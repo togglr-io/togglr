@@ -13,6 +13,12 @@ func noContent(w http.ResponseWriter) {
 	_, _ = w.Write(nil)
 }
 
+func found(w http.ResponseWriter, url string) {
+	w.Header().Set("Location", url)
+	w.WriteHeader(http.StatusFound)
+	_, _ = w.Write(nil)
+}
+
 func badRequest(w http.ResponseWriter, msg string) {
 	w.WriteHeader(http.StatusBadRequest)
 	_, _ = w.Write([]byte(msg))

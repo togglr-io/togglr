@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -88,7 +87,6 @@ func getUser(accessToken string) (userResponse, error) {
 	}
 	defer res.Body.Close()
 
-	log.Printf("user response: %s", string(body))
 	if err := json.Unmarshal(body, &user); err != nil {
 		return user, err
 	}
@@ -128,8 +126,8 @@ func getPrimaryEmail(accessToken string) (string, error) {
 	return "", errors.New("no primary email found")
 }
 
-func HandleGithubRedirect(log *zap.Logger, us togglr.UserService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleGithubRedirect"))
+func HandleGithubRedirect(logger *zap.Logger, us togglr.UserService, tokenFn TokenFn) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleGithubRedirect"))
 	clientID := os.Getenv("TOGGLR_GITHUB_CLIENT_ID")
 	clientSecret := os.Getenv("TOGGLR_GITHUB_CLIENT_SECRET")
 
@@ -179,7 +177,8 @@ func HandleGithubRedirect(log *zap.Logger, us togglr.UserService) http.HandlerFu
 				Email:        email,
 			}
 
-			if _, err := us.CreateUser(r.Context(), newUser); err != nil {
+			var err error
+			if user.ID, err = us.CreateUser(r.Context(), newUser); err != nil {
 				log.Error("failed to create new user")
 				serverError(w, "could not create new user")
 				return
@@ -187,10 +186,25 @@ func HandleGithubRedirect(log *zap.Logger, us togglr.UserService) http.HandlerFu
 		}
 
 		// generate a JWT for the Togglr user
+		token, err := tokenFn(user)
+		if err != nil {
+			log.Error("failed to generate auth token")
+			serverError(w, "could not generate auth token")
+			return
+		}
 
 		// add JWT to an HttpOnly cookie
+		authCookie := http.Cookie{
+			Name:     "authToken",
+			Value:    token,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false, // TODO (etate): should be true in deployed envs
+		}
+
+		http.SetCookie(w, &authCookie)
 
 		// respond with noContent
-		noContent(w)
+		found(w, "http://localhost:3000")
 	})
 }

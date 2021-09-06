@@ -12,12 +12,11 @@ import (
 )
 
 // HandleUserPOST handles POST requests to the /user endpoint
-func HandleUserPOST(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleUserPOST"))
+func HandleUserPOST(logger *zap.Logger, as togglr.UserService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleUserPOST"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("creating user")
-		defer log.Sync()
 
 		var id togglr.ID
 		body, err := ioutil.ReadAll(r.Body)
@@ -76,11 +75,10 @@ func HandleUserPOST(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
 }
 
 // HandleUserGET handles GET requests to the /user endpoint
-func HandleUserGET(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleUserGET"))
+func HandleUserGET(logger *zap.Logger, as togglr.UserService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleUserGET"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing users")
-		defer log.Sync()
 
 		req := togglr.ListUsersReq{}
 
@@ -103,13 +101,12 @@ func HandleUserGET(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
 }
 
 // HandleUserIdGET handles GET requests to the /user/{id} endpoint
-func HandleUserIdGET(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleUserIdGET"))
+func HandleUserIdGET(logger *zap.Logger, as togglr.UserService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleUserIdGET"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("userID", id))
 		log.Debug("fetching user")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {
@@ -137,14 +134,13 @@ func HandleUserIdGET(log *zap.Logger, as togglr.UserService) http.HandlerFunc {
 }
 
 // HandleUserDELETE handles DELETE requests to the /user/{id} endpoint
-func HandleUserDELETE(log *zap.Logger, ts togglr.UserService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleUserDELETE"))
+func HandleUserDELETE(logger *zap.Logger, ts togglr.UserService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleUserDELETE"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("userID", id))
 		log.Debug("deleting user")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {

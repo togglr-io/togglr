@@ -10,13 +10,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func HandleMetadataGET(log *zap.Logger, ms togglr.MetadataService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "handleMetadataGET"))
+func HandleMetadataGET(logger *zap.Logger, ms togglr.MetadataService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "handleMetadataGET"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accountID := chi.URLParam(r, "accountID")
 		log.Debug("listing metdata keys", zap.String("accountID", accountID))
-		defer log.Sync()
 
 		uid, err := uid.FromString(accountID)
 		if err != nil {

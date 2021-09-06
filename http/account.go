@@ -12,12 +12,11 @@ import (
 )
 
 // HandleAccountPOST handles POST requests to the /account endpoint
-func HandleAccountPOST(log *zap.Logger, as togglr.AccountService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleAccountPOST"))
+func HandleAccountPOST(logger *zap.Logger, as togglr.AccountService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleAccountPOST"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("creating account")
-		defer log.Sync()
 
 		var id togglr.ID
 		body, err := ioutil.ReadAll(r.Body)
@@ -76,11 +75,11 @@ func HandleAccountPOST(log *zap.Logger, as togglr.AccountService) http.HandlerFu
 }
 
 // HandleAccountGET handles GET requests to the /account endpoint
-func HandleAccountGET(log *zap.Logger, as togglr.AccountService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleAccountGET"))
+func HandleAccountGET(logger *zap.Logger, as togglr.AccountService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleAccountGET"))
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing accounts")
-		defer log.Sync()
 
 		req := togglr.ListAccountsReq{}
 
@@ -103,13 +102,13 @@ func HandleAccountGET(log *zap.Logger, as togglr.AccountService) http.HandlerFun
 }
 
 // HandleAccountIdGET handles GET requests to the /account/{id} endpoint
-func HandleAccountIdGET(log *zap.Logger, as togglr.AccountService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleAccountIdGET"))
+func HandleAccountIdGET(logger *zap.Logger, as togglr.AccountService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleAccountIdGET"))
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("accountID", id))
 		log.Debug("fetching account")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {
@@ -143,7 +142,6 @@ func HandleAccountUsersGET(log *zap.Logger, us togglr.UserService) http.HandlerF
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("accountID", id))
 		log.Debug("listing account users")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {
@@ -182,7 +180,6 @@ func HandleAccountUsersPOST(log *zap.Logger, as togglr.AccountService) http.Hand
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("accountID", id))
 		log.Debug("updating account users")
-		defer log.Sync()
 
 		accountID, err := uid.FromString(id)
 		if err != nil {

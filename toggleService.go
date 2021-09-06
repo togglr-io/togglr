@@ -49,7 +49,6 @@ func extractKeys(expr rules.Expr) []string {
 }
 
 func (s DefaultToggleService) pushKeys(ctx context.Context, accountID uid.UID, rules rules.Rules) {
-	defer s.log.Sync()
 	if rules == nil || len(rules) == 0 {
 		return
 	}

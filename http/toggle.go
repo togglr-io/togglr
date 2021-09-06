@@ -12,12 +12,11 @@ import (
 )
 
 // HandleTogglePOST handles POST requests to the /toggle endpoint
-func HandleTogglePOST(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleTogglePOST"))
+func HandleTogglePOST(logger *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleTogglePOST"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("creating toggle")
-		defer log.Sync()
 
 		var id togglr.ID
 		body, err := ioutil.ReadAll(r.Body)
@@ -76,11 +75,10 @@ func HandleTogglePOST(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc
 }
 
 // HandleToggleGET handles GET requests to the /toggle endpoint
-func HandleToggleGET(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleToggleGET"))
+func HandleToggleGET(logger *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleToggleGET"))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing toggles")
-		defer log.Sync()
 
 		req := togglr.ListTogglesReq{}
 
@@ -103,14 +101,13 @@ func HandleToggleGET(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc 
 }
 
 // HandleToggleGetIdGET handles GET requests to the /toggle/{id} endpoint
-func HandleToggleIdGET(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleToggleIdGET"))
+func HandleToggleIdGET(logger *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleToggleIdGET"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("toggleID", id))
 		log.Debug("fetching toggle")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {
@@ -138,14 +135,13 @@ func HandleToggleIdGET(log *zap.Logger, ts togglr.ToggleService) http.HandlerFun
 }
 
 // HandleToggleDELETE handles DELETE requests to the /toggle/{id} endpoint
-func HandleToggleDELETE(log *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
-	log = log.With(zap.String("handler", "HandleToggleDELETE"))
+func HandleToggleDELETE(logger *zap.Logger, ts togglr.ToggleService) http.HandlerFunc {
+	log := logger.With(zap.String("handler", "HandleToggleDELETE"))
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		log = log.With(zap.String("toggleID", id))
 		log.Debug("deleting toggle")
-		defer log.Sync()
 
 		uid, err := uid.FromString(id)
 		if err != nil {
