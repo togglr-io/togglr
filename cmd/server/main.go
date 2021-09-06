@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/mattn/go-colorable"
 	"github.com/togglr-io/togglr"
 	"github.com/togglr-io/togglr/env"
@@ -59,6 +60,10 @@ func run() error {
 }
 
 func main() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
