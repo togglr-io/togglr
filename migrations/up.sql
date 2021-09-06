@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS accounts(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP TRIGGER IF EXISTS accounts_updated_at ON accounts;
 CREATE TRIGGER accounts_updated_at BEFORE UPDATE
 ON accounts FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
 
@@ -28,12 +29,14 @@ CREATE TABLE IF NOT EXISTS users(
 	id UUID PRIMARY KEY,
 	email VARCHAR(320) NOT NULL,
 	name VARCHAR(512) NOT NULL,
+	identity VARCHAR(512) NOT NULL,
 	identity_type VARCHAR(64) NOT NULL REFERENCES identity_types(name),
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	UNIQUE (email, identity_type)
+	UNIQUE (identity, identity_type)
 );
 
+DROP TRIGGER IF EXISTS users_updated_at ON users;
 CREATE TRIGGER users_updated_at BEFORE UPDATE
 ON users FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
 
@@ -59,6 +62,8 @@ CREATE TABLE IF NOT EXISTS toggles(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (account_id, key)
 );
+
+DROP TRIGGER IF EXISTS toggles_updated_at ON toggles;
 CREATE TRIGGER toggles_updated_at BEFORE UPDATE
 ON toggles FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
 
@@ -72,6 +77,8 @@ CREATE TABLE IF NOT EXISTS metadata_keys(
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (account_id, key)
 );
+
+DROP TRIGGER IF EXISTS metadata_keys_updated_at ON metadata_keys;
 CREATE TRIGGER metadata_keys_updated_at BEFORE UPDATE
 ON metadata_keys FOR EACH ROW EXECUTE PROCEDURE updated_at_trigger();
 

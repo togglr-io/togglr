@@ -60,6 +60,9 @@ func BuildRoutes(cfg Config) chi.Router {
 	r.Get("/user/{id}", HandleUserIdGET(cfg.Logger, cfg.Services.UserService))
 	r.Delete("/user/{id}", HandleUserDELETE(cfg.Logger, cfg.Services.UserService))
 
+	// oauth stuff
+	r.Get("/oauth/github", HandleGithubRedirect(cfg.Logger, cfg.Services.UserService))
+
 	return r
 }
 

@@ -57,6 +57,16 @@ func (c Client) FetchUser(ctx context.Context, id uid.UID) (togglr.User, error) 
 	return user, nil
 }
 
+func (c Client) FetchUserByIdentity(ctx context.Context, identity string, identityType togglr.IdentityType) (togglr.User, error) {
+	var user togglr.User
+	query := c.db.From("users").Where(goqu.Ex{"identity": identity, "identity_type": identityType})
+	if _, err := query.ScanStructContext(ctx, &user); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 // ListUsers queries a slice of Users from postgres
 func (c Client) ListUsers(ctx context.Context, req togglr.ListUsersReq) ([]togglr.User, error) {
 	// default to instantiated value so that we return an empty slice instead of null when there's no results

@@ -98,12 +98,13 @@ type ToggleService interface {
 // A User represents a single User interacting with Togglr. Users can belong to multiple
 // accounts and a User will be attached to every request to make decisions around authZ
 type User struct {
-	ID        uid.UID      `json:"id" db:"id"`
-	Name      string       `json:"name" db:"name"`
-	Email     string       `json:"email" db:"email"`
-	Identity  IdentityType `json:"identity" db:"identity_type"`
-	CreatedAt time.Time    `json:"createdAt" db:"created_at" goqu:"skipinsert,skipupdate"`
-	UpdatedAt time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert,skipupdate"`
+	ID           uid.UID      `json:"id" db:"id"`
+	Name         string       `json:"name" db:"name"`
+	Email        string       `json:"email" db:"email"`
+	Identity     string       `json:"identity" db:"identity"`
+	IdentityType IdentityType `json:"identityType" db:"identity_type"`
+	CreatedAt    time.Time    `json:"createdAt" db:"created_at" goqu:"skipinsert,skipupdate"`
+	UpdatedAt    time.Time    `json:"updatedAt" db:"updated_at" goqu:"skipinsert,skipupdate"`
 }
 
 type ListUsersReq struct {
@@ -121,6 +122,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, user User) (uid.UID, error)
 	UpdateUser(ctx context.Context, req UpdateUserReq) error
 	FetchUser(ctx context.Context, id uid.UID) (User, error)
+	FetchUserByIdentity(ctx context.Context, identity string, identityType IdentityType) (User, error)
 	ListUsers(ctx context.Context, req ListUsersReq) ([]User, error)
 	DeleteUser(ctx context.Context, id uid.UID) error
 }

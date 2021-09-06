@@ -17,6 +17,9 @@ type UserService struct {
 	FetchUserFn     func(ctx context.Context, id uid.UID) (togglr.User, error)
 	FetchUserCalled int
 
+	FetchUserByIdentityFn     func(ctx context.Context, identity string, identityType togglr.IdentityType) (togglr.User, error)
+	FetchUserByIdentityCalled int
+
 	ListUsersFn     func(ctx context.Context, req togglr.ListUsersReq) ([]togglr.User, error)
 	ListUsersCalled int
 
@@ -56,6 +59,15 @@ func (m *UserService) FetchUser(ctx context.Context, id uid.UID) (togglr.User, e
 	m.FetchUserCalled++
 	if m.FetchUserFn != nil {
 		return m.FetchUserFn(ctx, id)
+	}
+
+	return togglr.User{}, m.Error
+}
+
+func (m *UserService) FetchUserByIdentity(ctx context.Context, identity string, identityType togglr.IdentityType) (togglr.User, error) {
+	m.FetchUserByIdentityCalled++
+	if m.FetchUserByIdentityFn != nil {
+		return m.FetchUserByIdentityFn(ctx, identity, identityType)
 	}
 
 	return togglr.User{}, m.Error
