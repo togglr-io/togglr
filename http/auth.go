@@ -15,11 +15,13 @@ import (
 // the number of chars to skip when reading bearer tokens
 const bearerWidth = 7
 
+// The Claims that should be embedded in auth tokens.
 type Claims struct {
 	jwt.StandardClaims
 	AccountID uid.UID `json:"accountId,omitempty"`
 }
 
+// Valid implements the jwt.Claims interface and determines whether or not the given claims are valid.
 func (c Claims) Valid() error {
 	if _, err := uid.FromString(c.Subject); err != nil {
 		return fmt.Errorf("invalid subject: %w", err)
@@ -28,17 +30,21 @@ func (c Claims) Valid() error {
 	return c.StandardClaims.Valid()
 }
 
+// WithClaims takes a context and returns a new context containing the given Claims.
 func WithClaims(ctx context.Context, claims Claims) context.Context {
 	return context.WithValue(ctx, ctxKey{name: "claims"}, claims)
 }
 
+// GetClaims retrieves an embedded Claims struct from the given context.
 func GetClaims(ctx context.Context) Claims {
 	val, _ := ctx.Value(ctxKey{name: "claims"}).(Claims)
 	return val
 }
 
+// A TokenFn generates a token containing claims based on the given User.
 type TokenFn func(user togglr.User) (string, error)
 
+// makeTokenFn creates a TokenFn that uses HS512 to sign with the given key.
 func makeTokenFn(secret []byte) TokenFn {
 	return func(user togglr.User) (string, error) {
 		claims := Claims{
@@ -81,7 +87,6 @@ func parseToken(secret []byte, tokenString string) (Claims, error) {
 func requireAuth(secret []byte, log *zap.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Info("requiring auth")
 			// check for cookie first
 			var token string
 			for _, cookie := range r.Cookies() {

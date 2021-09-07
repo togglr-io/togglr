@@ -58,9 +58,6 @@ func BuildRoutes(cfg Config) chi.Router {
 	authd.Get("/toggle/{id}", HandleToggleIdGET(cfg.Logger, cfg.Services.ToggleService))
 	authd.Delete("/toggle/{id}", HandleToggleDELETE(cfg.Logger, cfg.Services.ToggleService))
 
-	authd.Get("/metadata/{accountID}", HandleMetadataGET(cfg.Logger, cfg.Services.MetadataService))
-	authd.Post("/resolve/{accountID}", HandleResolvePOST(cfg.Logger, cfg.Services.Resolver))
-
 	authd.Post("/account", HandleAccountPOST(cfg.Logger, cfg.Services.AccountService))
 	authd.Get("/account", HandleAccountGET(cfg.Logger, cfg.Services.AccountService))
 	authd.Get("/account/{id}", HandleAccountIdGET(cfg.Logger, cfg.Services.AccountService))
@@ -68,10 +65,13 @@ func BuildRoutes(cfg Config) chi.Router {
 	authd.Post("/account/{id}/user", HandleAccountUsersPOST(cfg.Logger, cfg.Services.AccountService))
 
 	authd.Post("/user", HandleUserPOST(cfg.Logger, cfg.Services.UserService))
-	// a GET on /user returns the currently logged in user
 	authd.Get("/user", HandleUserGET(cfg.Logger, cfg.Services.UserService))
 	authd.Get("/user/{id}", HandleUserIdGET(cfg.Logger, cfg.Services.UserService))
 	authd.Delete("/user/{id}", HandleUserDELETE(cfg.Logger, cfg.Services.UserService))
+
+	authd.Get("/metadata/{accountID}", HandleMetadataGET(cfg.Logger, cfg.Services.MetadataService))
+
+	authd.Post("/resolve/{accountID}", HandleResolvePOST(cfg.Logger, cfg.Services.Resolver))
 
 	r.Mount("/", authd)
 	return r

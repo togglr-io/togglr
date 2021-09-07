@@ -80,19 +80,26 @@ func HandleUserGET(logger *zap.Logger, as togglr.UserService) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("listing users")
 
-		req := togglr.ListUsersReq{}
+		claims := GetClaims(r.Context())
 
-		users, err := as.ListUsers(r.Context(), req)
+		userID, err := uid.FromString(claims.Subject)
 		if err != nil {
-			log.Error("failed to list users", zap.Error(err))
-			serverError(w, "could not list users")
+			log.Error("embedded claims contain invalid user ID in subject", zap.Error(err))
+			serverError(w, "could not fetch user info")
 			return
 		}
 
-		data, err := json.Marshal(users)
+		user, err := as.FetchUser(r.Context(), userID)
+		if err != nil {
+			log.Error("failed to fetch user", zap.Error(err))
+			serverError(w, "could not fetch user info")
+			return
+		}
+
+		data, err := json.Marshal(user)
 		if err != nil {
 			log.Error("failed to marshal users", zap.Error(err))
-			serverError(w, "could not list users")
+			serverError(w, "could not fetch user info")
 			return
 		}
 
