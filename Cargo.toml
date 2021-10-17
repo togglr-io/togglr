@@ -1,0 +1,16 @@
+[package]
+name = "togglr"
+version = "0.1.0"
+edition = "2018"
+authors = [ "Erik Tate <hello@eriktate.me" ]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+warp = "0.3"
+sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "postgres", "chrono", "json", "uuid" ] }
+chrono = { version = "0.4", features = [ "serde" ] }
+uuid = { version = "0.8.2", features = [ "v4", "serde" ] }
+serde = { version = "1.0", features = [ "derive" ] }
+serde_json = "1.0"

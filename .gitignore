@@ -1,1 +1,6 @@
 /*coverage*
+.env
+
+# Added by cargo
+
+/target
