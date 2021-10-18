@@ -36,17 +36,15 @@ async fn main() -> Result<(), sqlx::Error> {
         .await?;
 
     // create services utilizing connection pool
-    let account_service = PgAccountService::new(pool.clone());
-    let user_service = PgUserService::new(pool.clone());
     let services = Services {
         account_service: PgAccountService::new(pool.clone()),
         user_service: PgUserService::new(pool.clone()),
     };
 
-
     warp::serve(http::router(services))
         .run(([127, 0, 0, 1], 3030))
         .await;
+
     Ok(())
 }
 
